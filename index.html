@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="An interactive, child-friendly reference covering 249 big ideas across 28 subjects — philosophy, science, history, art, and more. Open-source and free to use.">
+<meta name="author" content="Open Source Educational Project">
+<meta name="license" content="MIT">
+<title>Big Ideas for Young Minds — Interactive Knowledge Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#232323;--surface3:#2d2d2d;
+--text:#e8e4df;--text2:#a8a29e;--text3:#78716c;
+--accent:#f59e0b;--accent2:#fb923c;--accent3:#fbbf24;
+--blue:#60a5fa;--green:#4ade80;--pink:#f472b6;--purple:#a78bfa;
+--red:#f87171;--teal:#2dd4bf;--indigo:#818cf8;
+--radius:12px;--shadow:0 4px 24px rgba(0,0,0,.4);
+}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+::selection{background:var(--accent);color:var(--bg)}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;background:rgba(15,15,15,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--surface2);padding:16px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.header h1{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header .subtitle{color:var(--text3);font-size:.85rem;letter-spacing:.5px}
+.search-box{margin-left:auto;position:relative;min-width:280px}
+.search-box input{width:100%;padding:10px 16px 10px 40px;background:var(--surface);border:1px solid var(--surface3);border-radius:8px;color:var(--text);font-size:.9rem;font-family:inherit;outline:none;transition:border-color .2s}
+.search-box input:focus{border-color:var(--accent)}
+.search-box svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3)}
+.stats{font-size:.8rem;color:var(--text3);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+
+/* LAYOUT */
+.layout{display:flex;min-height:calc(100vh - 65px)}
+.sidebar{width:300px;min-width:300px;background:var(--surface);border-right:1px solid var(--surface2);overflow-y:auto;position:sticky;top:65px;height:calc(100vh - 65px);padding:12px}
+.main{flex:1;padding:32px 40px;max-width:960px}
+
+/* SIDEBAR BOOK LIST */
+.sidebar-title{font-size:.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--text3);padding:12px 12px 8px;font-weight:600}
+.book-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:none;border:none;border-radius:8px;color:var(--text2);font-size:.85rem;font-family:inherit;cursor:pointer;text-align:left;transition:all .15s;line-height:1.3}
+.book-btn:hover{background:var(--surface2);color:var(--text)}
+.book-btn.active{background:var(--surface3);color:var(--accent)}
+.book-btn .emoji{font-size:1.2rem;width:28px;text-align:center;flex-shrink:0}
+
+/* MAIN CONTENT */
+.book-header{margin-bottom:32px;padding-bottom:24px;border-bottom:2px solid var(--surface2)}
+.book-header h2{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;margin-bottom:8px}
+.book-header .book-desc{color:var(--text2);font-size:1rem;max-width:600px}
+.book-header .tag{display:inline-block;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600;margin-right:6px;margin-top:8px}
+
+/* SECTIONS */
+.section{margin-bottom:24px}
+.section-header{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius);cursor:pointer;transition:all .2s;user-select:none}
+.section-header:hover{background:var(--surface2);border-color:var(--surface3)}
+.section-header.open{border-radius:var(--radius) var(--radius) 0 0;border-bottom-color:transparent}
+.section-header h3{font-family:'Playfair Display',serif;font-size:1.15rem;flex:1}
+.section-header .count{font-size:.75rem;color:var(--text3);font-family:'JetBrains Mono',monospace;background:var(--surface3);padding:2px 8px;border-radius:12px}
+.section-chevron{transition:transform .2s;color:var(--text3)}
+.section-header.open .section-chevron{transform:rotate(90deg)}
+
+/* TOPICS */
+.topics{background:var(--surface);border:1px solid var(--surface2);border-top:none;border-radius:0 0 var(--radius) var(--radius);overflow:hidden;display:none}
+.topics.open{display:block}
+.topic{padding:14px 20px;border-bottom:1px solid var(--surface2);cursor:pointer;transition:background .15s}
+.topic:last-child{border-bottom:none}
+.topic:hover{background:var(--surface2)}
+.topic-title{font-weight:600;font-size:.95rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.topic-title .thinker{color:var(--accent);font-size:.8rem;font-weight:400}
+.topic-summary{font-size:.85rem;color:var(--text2);line-height:1.5}
+.topic-concept{font-size:.8rem;color:var(--accent3);margin-top:6px;font-style:italic;padding-left:12px;border-left:2px solid var(--accent)}
+.topic-example{font-size:.8rem;color:var(--teal);margin-top:4px;padding-left:12px;border-left:2px solid var(--teal);display:none}
+.topic.expanded .topic-example{display:block}
+.topic-expand{font-size:.7rem;color:var(--text3);margin-top:6px;cursor:pointer}
+.topic-expand:hover{color:var(--accent)}
+
+/* TOP IDEAS */
+.top-ideas{margin-top:32px;padding:20px;background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(251,146,60,.04));border:1px solid rgba(245,158,11,.2);border-radius:var(--radius)}
+.top-ideas h4{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--accent);margin-bottom:12px}
+.top-idea-item{padding:6px 0;font-size:.88rem;color:var(--text2);display:flex;gap:8px}
+.top-idea-item .num{color:var(--accent);font-weight:700;font-family:'JetBrains Mono',monospace;min-width:20px}
+
+/* STORY IDEAS */
+.story-ideas{margin-top:20px;padding:20px;background:linear-gradient(135deg,rgba(96,165,250,.08),rgba(129,140,248,.04));border:1px solid rgba(96,165,250,.2);border-radius:var(--radius)}
+.story-ideas h4{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--blue);margin-bottom:12px}
+.story-item{padding:8px 0;font-size:.88rem;color:var(--text2);border-bottom:1px solid rgba(96,165,250,.1)}
+.story-item:last-child{border-bottom:none}
+.story-item strong{color:var(--blue)}
+
+/* WELCOME */
+.welcome{text-align:center;padding:80px 40px}
+.welcome h2{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--pink),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
+.welcome p{color:var(--text2);max-width:500px;margin:0 auto 32px;font-size:1.05rem}
+.welcome .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;max-width:700px;margin:0 auto}
+.welcome .grid-item{padding:14px 10px;background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius);cursor:pointer;transition:all .2s;font-size:.8rem;color:var(--text2)}
+.welcome .grid-item:hover{border-color:var(--accent);color:var(--text);transform:translateY(-2px);box-shadow:var(--shadow)}
+.welcome .grid-item .emoji{font-size:1.6rem;display:block;margin-bottom:6px}
+
+/* HIGHLIGHT */
+.highlight{background:rgba(245,158,11,.15);padding:0 3px;border-radius:3px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+.sidebar{display:none}
+.header{padding:12px 16px}
+.main{padding:20px 16px}
+.search-box{min-width:200px;order:10;flex:1}
+}
+
+/* MOBILE NAV */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(15,15,15,.95);backdrop-filter:blur(20px);border-top:1px solid var(--surface2);padding:8px 16px;overflow-x:auto;white-space:nowrap}
+.mobile-nav .book-chip{display:inline-block;padding:8px 14px;background:var(--surface2);border-radius:20px;font-size:.78rem;color:var(--text2);cursor:pointer;margin-right:6px}
+.mobile-nav .book-chip.active{background:var(--accent);color:var(--bg)}
+@media(max-width:768px){.mobile-nav{display:flex;gap:6px}}
+
+/* NO RESULTS */
+.no-results{text-align:center;padding:60px 20px;color:var(--text3)}
+.no-results svg{margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<div class="header">
+<div>
+<h1>📚 Big Ideas for Young Minds</h1>
+<div class="subtitle">Interactive Knowledge Reference · Child-Friendly Edition</div>
+</div>
+<div class="stats" id="stats">28 subjects · 700+ ideas</div>
+<div class="search-box">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+<input type="text" id="search" placeholder="Search any idea, thinker, or topic…" autocomplete="off">
+</div>
+</div>
+
+<div class="layout">
+<div class="sidebar" id="sidebar"></div>
+<div class="main" id="main">
+<div class="welcome" id="welcome">
+<h2>Explore 28 Fields of Big Ideas</h2>
+<p>Click any subject to explore its key ideas and child-friendly explanations. An open-source educational reference for curious minds.</p>
+<p style="font-size:.75rem;color:var(--text3);max-width:500px;margin:0 auto 24px;line-height:1.5">⚠️ Disclaimer: This is an independent educational project. All explanations are original summaries of public-domain knowledge, written for children. This project is not affiliated with or endorsed by any publisher. Ideas presented here belong to the thinkers and traditions that created them.</p>
+<div class="grid" id="welcomeGrid"></div>
+</div>
+</div>
+</div>
+
+<div class="mobile-nav" id="mobileNav"></div>
+
+<script>
+// ============================================================
+// COMPLETE DATA: ALL 28 SUBJECTS
+// ============================================================
+const BOOKS = [
+// ──────────────────────────────────────────
+// 1. PHILOSOPHY
+// ──────────────────────────────────────────
+{
+id:"philosophy",title:"Philosophy",emoji:"🤔",color:"#f59e0b",
+desc:"How should we live? What is real? What can we know? The biggest questions humans have ever asked.",
+tags:["Thinking","Ethics","Existence","Logic"],
+sections:[
+{name:"The Ancient World (700 BCE–250 CE)",ideas:[
+{t:"Everything Flows",by:"Heraclitus",s:"Nothing stays the same — the universe is constantly changing, like a river with new water every second.",c:"Change is the only constant in life.",e:"You can't step in the same river twice — different water is always flowing."},
+{t:"Numbers Rule the World",by:"Pythagoras",s:"Math is the hidden pattern behind everything — from music to the stars. Numbers are nature's secret language.",c:"Mathematics is the language of the universe.",e:"Pluck a guitar string at its halfway point — the perfect note you hear is pure math."},
+{t:"The Only Thing I Know Is That I Know Nothing",by:"Socrates",s:"The wisest person admits what they don't know. Socrates never gave answers — he asked questions until people discovered truth themselves.",c:"True wisdom starts with humble questioning.",e:"The kid who keeps asking 'why?' learns far more than the know-it-all."},
+{t:"Earthly Knowledge Is But a Shadow (The Cave)",by:"Plato",s:"Imagine people chained in a dark cave watching shadows on a wall, thinking shadows are real. Plato said our senses might only show us shadows of a deeper reality.",c:"A perfect, ideal world exists beyond what our senses reveal.",e:"You can draw a circle, but it's always slightly wobbly. The idea of a perfect circle exists even if you can't draw one."},
+{t:"The Golden Mean",by:"Aristotle",s:"The best way to live is to find balance between extremes. Too much courage is recklessness, too little is cowardice — the middle is just right.",c:"Virtue lies in the balance between two extremes.",e:"Eating too much or too little makes you sick. Just the right amount keeps you healthy."},
+{t:"Man Is the Measure of All Things",by:"Protagoras",s:"There's no single truth for everyone. What's true for you might not be true for me. Reality depends on who's experiencing it.",c:"Truth is relative to the individual.",e:"Is broccoli delicious or disgusting? It depends entirely on who you ask!"},
+{t:"Pleasure Is the Goal of Life",by:"Epicurus",s:"Happiness is life's purpose — but not wild parties! Epicurus meant calm, peaceful joy: good friends, simple food, and freedom from worry.",c:"True pleasure comes from simple, peaceful living.",e:"A sunny picnic with your best friends beats a fancy dinner alone."},
+{t:"Focus on What You Can Control",by:"Epictetus (Stoics)",s:"Bad things happen to everyone. You can't control events, but you CAN control your reaction. Don't waste energy on what you can't change.",c:"Control your response, not the situation.",e:"Didn't make the team? A Stoic asks: 'What will I do NOW?' — practice harder or try a new sport."},
+]},
+{name:"The Medieval World (250–1500)",ideas:[
+{t:"Evil Is the Absence of Good",by:"St. Augustine",s:"Evil isn't a thing God created — it's the absence of good, like darkness is just the absence of light. Bad happens when good is missing.",c:"Evil is not a force — it's where goodness is missing.",e:"A hole in a shirt isn't made of anything — it's just where fabric is missing. Evil works the same way."},
+{t:"God Sees All Time at Once",by:"Boethius",s:"God knowing what you'll choose doesn't mean God forced you. God sees past, present, and future all at once, like watching a whole movie at the same time.",c:"Foreknowledge is not the same as forcing a choice.",e:"Your mom knows you'll pick chocolate ice cream — but she didn't force you. She just knows you well!"},
+{t:"Philosophy and Religion Can Coexist",by:"Averroes",s:"Science uses reason, religion uses faith — both search for truth through different paths but can arrive at the same place.",c:"Reason and faith are two paths to one truth.",e:"Two paths up a mountain — one steep and rocky (reason), one winding (faith) — both reach the summit."},
+{t:"The Simplest Explanation Is Best (Ockham's Razor)",by:"William of Ockham",s:"When you have two explanations, pick the simpler one. Don't add unnecessary complications when a simple answer works fine.",c:"Don't multiply explanations beyond necessity.",e:"Sandwich missing? Your brother probably ate it — not aliens beaming it to Mars."},
+]},
+{name:"Renaissance & Age of Reason (1500–1750)",ideas:[
+{t:"The End Justifies the Means",by:"Machiavelli",s:"Sometimes leaders must make tough, unpopular decisions to keep everyone safe. What matters is the result, not whether it was 'nice.'",c:"In politics, practical results can outweigh moral ideals.",e:"A principal cancels a fun trip to fix lab equipment — unpopular but responsible."},
+{t:"Knowledge Is Power",by:"Francis Bacon",s:"Instead of reading old books, do experiments! Understanding nature through science gives humans the power to improve everyone's life.",c:"Scientific experimentation leads to real power and progress.",e:"Doctors cured diseases by studying germs under microscopes, not reading ancient scrolls."},
+{t:"I Think, Therefore I Am",by:"Descartes",s:"Descartes doubted everything — maybe the world is fake! But he couldn't doubt that he was thinking. If you think, you exist. Period.",c:"The one certainty: you are a thinking being.",e:"Even if everything were a dream, the fact that YOU are dreaming proves you exist."},
+{t:"The Mind Is a Blank Slate",by:"John Locke",s:"You're not born knowing anything. Your mind starts completely empty, and everything you know comes from what you see, hear, touch, and experience.",c:"All knowledge comes from experience — nothing is built in.",e:"A baby doesn't know what a dog is until they see one, hear it bark, and feel its fur."},
+{t:"To Be Is to Be Perceived",by:"George Berkeley",s:"Does a tree exist if nobody looks at it? Berkeley said things only exist because someone is perceiving them.",c:"Reality depends on being observed.",e:"If a tree falls in a forest with no one around, does it make a sound? Berkeley says no!"},
+]},
+{name:"The Age of Revolution (1750–1900)",ideas:[
+{t:"We Are Born Free, Yet Everywhere in Chains",by:"Rousseau",s:"Humans are naturally good, but society creates inequality and unfair rules. Good government needs the people's consent.",c:"Fair government requires the people's agreement.",e:"Kids naturally share on a playground — until one declares himself 'king' with unfair rules."},
+{t:"Act Only by a Rule Everyone Could Follow",by:"Kant",s:"Before you do something, imagine EVERYONE doing it. If everyone lied, trust would collapse. So lying is wrong.",c:"Moral actions must work as universal rules.",e:"Cutting in line seems fine for you — but if everyone did it, there'd be no line at all!"},
+{t:"Greatest Happiness for the Greatest Number",by:"Bentham & Mill",s:"The right action creates the most happiness for the most people. Mill added: quality of happiness matters too — not just quantity.",c:"Morality is about maximizing overall well-being.",e:"City decides: park or parking lot? Whichever makes more people happy wins."},
+{t:"History Is Class Struggle",by:"Karl Marx",s:"Throughout history, the wealthy exploit workers. Marx wanted a society where wealth and power are shared equally among everyone.",c:"Economic inequality drives all historical conflict.",e:"Group project where one kid does the work but another gets the credit and prize."},
+{t:"God Is Dead",by:"Nietzsche",s:"Modern society stopped using religion as the foundation for morality. Now humans must create their own values and purpose.",c:"Without tradition, humans must build their own meaning.",e:"When the coach quits, the team must step up and lead themselves."},
+{t:"Existence Precedes Essence",by:"Sartre",s:"A knife is made to cut — it has a built-in purpose. But humans aren't born with a purpose. YOU decide what your life means.",c:"We create our own meaning through our choices.",e:"A hammer was designed to hit nails. You? You get to choose your own purpose."},
+]},
+{name:"Contemporary Philosophy (1900–Present)",ideas:[
+{t:"The Limits of My Language Are the Limits of My World",by:"Wittgenstein",s:"We can only think clearly about things we have words for. Language doesn't just describe reality — it shapes what we can understand.",c:"Language defines the boundaries of our thought.",e:"Japanese has 'komorebi' (sunlight through leaves). No English word exists — so English speakers may not notice it the same way."},
+{t:"Justice as Fairness (The Veil of Ignorance)",by:"John Rawls",s:"Design a society without knowing if you'll be rich or poor, healthy or sick. You'd make fair rules — because any unfairness might hurt YOU.",c:"True fairness comes from not knowing your own advantage.",e:"If you cut a cake not knowing which piece you'll get, you'll cut every piece equally!"},
+{t:"How Science Really Works (Paradigm Shifts)",by:"Thomas Kuhn",s:"Science doesn't progress smoothly. Scientists work within shared beliefs until too many things don't fit — then REVOLUTION! Everything gets overturned.",c:"Science advances through dramatic revolutions, not smooth progress.",e:"Everyone 'knew' Earth was the center of the universe — until Copernicus flipped everything upside down."},
+{t:"What Is It Like to Be a Bat?",by:"Thomas Nagel",s:"A bat 'sees' with sound. We can study its brain, but can we ever know what it FEELS like to be a bat? Probably not. Consciousness is deeply mysterious.",c:"Subjective experience can't be fully explained by science.",e:"You can describe 'red' to a blind person, but no description makes them truly SEE red."},
+{t:"One Is Not Born a Woman, But Becomes One",by:"Simone de Beauvoir",s:"Society teaches us how to 'be' a boy or girl. These aren't natural rules — they're invented roles. We should question them.",c:"Gender roles are socially constructed, not natural.",e:"Nothing in nature says boys must like blue and girls must like pink — someone just made that up."},
+{t:"Animals Deserve Moral Consideration",by:"Peter Singer",s:"Animals feel pain just like us. Ignoring their suffering because they're 'not human' is a prejudice — like any other form of discrimination.",c:"If a being can suffer, its suffering matters morally.",e:"If your dog feels pain when kicked, why would a pig's or chicken's pain matter any less?"},
+]},
+],
+topIdeas:["I Think Therefore I Am (Descartes)","Plato's Cave allegory","Kant's Categorical Imperative","Utilitarianism (Bentham/Mill)","Rawls' Veil of Ignorance","Socratic questioning method","Sartre's Existentialism","Marx's class struggle","Aristotle's Golden Mean","Ockham's Razor"],
+storyIdeas:[
+{title:"The Cave Kids",desc:"Kids in an underground clubhouse discover a hidden exit and realize everything they believed was just shadows of a bigger reality. (Plato)"},
+{title:"The Fair Cake",desc:"Five friends must divide cake without knowing which piece they'll get — discovering justice through a delicious dilemma. (Rawls)"},
+{title:"The Question Monster",desc:"A friendly monster that only speaks in questions arrives at school, teaching kids that questions are more powerful than answers. (Socrates)"},
+{title:"The Blank Book",desc:"A magical blank book appears: 'This book will write your life — but only YOU can pick up the pen.' (Sartre)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 2. PSYCHOLOGY
+// ──────────────────────────────────────────
+{
+id:"psychology",title:"Psychology",emoji:"🧠",color:"#a78bfa",
+desc:"Why do we think, feel, and behave the way we do? The science of the human mind.",
+tags:["Mind","Behavior","Emotions","Development"],
+sections:[
+{name:"Behaviorism",ideas:[
+{t:"The Conditioned Response",by:"Ivan Pavlov",s:"Pavlov rang a bell every time he fed his dogs. Soon, the dogs drooled just hearing the bell — even with no food. He proved we can be trained to react automatically.",c:"Repeated pairing creates automatic responses.",e:"You hear the ice cream truck jingle and feel excited — even before you see the truck!"},
+{t:"Give Me a Child and I'll Shape Him",by:"John B. Watson",s:"Watson believed that any baby could be trained to become anything — a doctor, artist, or thief — depending on their environment, not their genes.",c:"Environment shapes who we become more than genetics.",e:"Two identical twins raised in completely different homes can grow up with very different personalities."},
+{t:"Reward and Punishment Shape Behavior",by:"B.F. Skinner",s:"Skinner showed that behaviors followed by rewards get repeated, and those followed by punishment get avoided. He trained pigeons to play ping-pong this way!",c:"Consequences determine whether behavior continues.",e:"You get an A on a test and feel great — so you study hard for the next one. That's Skinner's idea in action."},
+{t:"Learning by Watching Others",by:"Albert Bandura",s:"Kids learn by watching people around them. Bandura showed that children who watched adults being aggressive became aggressive themselves (the Bobo doll experiment).",c:"We learn behaviors by observing and imitating role models.",e:"A younger sibling copies everything the older one does — good habits AND bad habits."},
+]},
+{name:"Psychoanalysis & The Unconscious",ideas:[
+{t:"The Unconscious Mind Controls Us",by:"Sigmund Freud",s:"Freud said most of our mind is hidden, like an iceberg underwater. Our hidden desires, fears, and memories secretly control how we think, feel, and act.",c:"Most of our mental life happens below conscious awareness.",e:"You can't explain why you're afraid of clowns — Freud would say it's a buried childhood memory."},
+{t:"The Collective Unconscious",by:"Carl Jung",s:"Jung believed all humans share a deep, universal layer of mind containing ancient patterns (archetypes) — like the Hero, the Shadow, the Wise Elder — that appear in every culture's stories.",c:"All humans share universal psychological patterns.",e:"Why does every culture have hero stories? Jung says it's because the 'hero' is built into our shared mind."},
+{t:"The Inferiority Complex",by:"Alfred Adler",s:"Adler said everyone feels inferior in some way as children. How we try to overcome those feelings drives our entire personality and ambitions.",c:"Feelings of inferiority motivate personal growth — or hold us back.",e:"A short kid practices basketball extra hard to compensate. Adler says that drive comes from the inferiority feeling."},
+]},
+{name:"Cognitive Psychology",ideas:[
+{t:"We See What We Expect to See",by:"Gestalt Psychologists",s:"Our brains don't just passively record reality — they actively organize and interpret it. We see patterns, fill in gaps, and make assumptions automatically.",c:"Perception is an active, constructive process.",e:"You read 'THE CAT' even if the middle letter is actually a blurry shape — your brain fills in the gap."},
+{t:"Short-Term Memory Holds 7 Items",by:"George Miller",s:"Miller discovered that our short-term memory can hold about 7 things at once (plus or minus 2). That's why phone numbers are 7 digits long!",c:"Our working memory has a strict, limited capacity.",e:"Try remembering a 20-digit number — you can't! But a 7-digit phone number? Manageable."},
+{t:"We Think in Two Systems",by:"Daniel Kahneman",s:"System 1 is fast, automatic, and emotional (gut reactions). System 2 is slow, deliberate, and logical (careful thinking). Most daily decisions use System 1.",c:"Fast intuitive thinking and slow analytical thinking compete in our minds.",e:"You instantly know 2+2=4 (System 1). But 37×48? You need to slow down and calculate (System 2)."},
+{t:"We Are Predictably Irrational",by:"Cognitive Bias Research",s:"Humans make the same thinking mistakes over and over — we overvalue what we already own, we follow the crowd, and we're tricked by how choices are framed.",c:"Our thinking errors are systematic and predictable.",e:"A 'limited time offer' makes you want something more — even if the deal isn't actually good."},
+]},
+{name:"Developmental Psychology",ideas:[
+{t:"Children Think Differently from Adults",by:"Jean Piaget",s:"Kids don't just know less than adults — they think in fundamentally different ways. Piaget mapped out stages of mental development that every child goes through.",c:"Cognitive development follows predictable stages.",e:"A 4-year-old thinks a tall glass has more water than a short wide one — even if they hold the same amount."},
+{t:"Attachment Is Essential for Development",by:"John Bowlby",s:"Babies need a strong emotional bond with a caregiver to develop properly. Without secure attachment, children struggle with relationships their entire lives.",c:"Early emotional bonds shape lifelong relationship patterns.",e:"A baby cries when mom leaves the room — that distress shows how powerful the attachment bond is."},
+{t:"The Stages of Moral Development",by:"Lawrence Kohlberg",s:"Kids start by following rules just to avoid punishment. Over time, they develop a deeper sense of fairness and eventually follow personal moral principles.",c:"Our sense of right and wrong develops in stages over time.",e:"A 5-year-old doesn't steal because 'I'll get in trouble.' A teenager doesn't steal because 'it's wrong.'"},
+]},
+{name:"Social Psychology",ideas:[
+{t:"Ordinary People Can Do Terrible Things",by:"Stanley Milgram",s:"Milgram's famous experiment showed that normal people will obey authority figures even when ordered to hurt others. It revealed how powerful obedience to authority is.",c:"Authority can make ordinary people act against their conscience.",e:"A student follows a teacher's unfair instruction, even when they feel it's wrong, because 'the teacher said so.'"},
+{t:"We Conform to Group Pressure",by:"Solomon Asch",s:"Asch showed that people will give obviously wrong answers just to go along with a group. The desire to fit in is incredibly powerful.",c:"Social pressure can override our own judgment.",e:"Everyone in class says the wrong answer — and you start to doubt your own correct answer."},
+{t:"People Act Differently in Groups",by:"Philip Zimbardo",s:"Zimbardo's Stanford Prison Experiment showed that people's behavior can dramatically change based on the role they're given. Normal students became cruel 'guards.'",c:"Social roles and situations shape behavior more than personality.",e:"Put a quiet kid in charge of a group, and they might become surprisingly bossy — the role changes them."},
+{t:"Our Need to Belong",by:"Abraham Maslow",s:"Maslow created a pyramid of human needs. First we need food and safety, then love and belonging, then respect, and finally 'self-actualization' — becoming our best selves.",c:"Human needs form a hierarchy from survival to self-fulfillment.",e:"You can't focus on homework (higher need) if you're starving hungry (basic need)."},
+]},
+],
+topIdeas:["Pavlov's conditioned response","Freud's unconscious mind","Piaget's stages of development","Maslow's hierarchy of needs","Milgram's obedience experiments","Kahneman's two-system thinking","Bandura's observational learning","Jung's archetypes","Bowlby's attachment theory","Cognitive biases"],
+storyIdeas:[
+{title:"The Bell That Made You Hungry",desc:"A school bell keeps ringing at lunchtime until kids feel hungry just hearing any bell. Exploring Pavlov's conditioning."},
+{title:"The Iceberg Kid",desc:"A child discovers their mind is like an iceberg — with a huge hidden part underneath. Adventures into the unconscious mind. (Freud)"},
+{title:"The Pyramid Climber",desc:"A character must climb Maslow's pyramid — solving hunger, finding safety, making friends, earning respect — before reaching the top. (Maslow)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 3. POLITICS
+// ──────────────────────────────────────────
+{
+id:"politics",title:"Politics",emoji:"🏛️",color:"#f87171",
+desc:"Who gets to make the rules? Who holds the power? How should societies organize themselves?",
+tags:["Government","Power","Rights","Democracy"],
+sections:[
+{name:"Ancient Political Thought",ideas:[
+{t:"The Philosopher King",by:"Plato",s:"Plato said the best ruler would be a wise philosopher — someone who seeks truth, not power. Most leaders are corrupted by ambition.",c:"Wisdom, not popularity, should determine who governs.",e:"Wouldn't you want the smartest, most fair-minded person leading your group project — not just the most popular?"},
+{t:"Man Is a Political Animal",by:"Aristotle",s:"Humans are naturally social creatures who need communities. Politics isn't something forced on us — organizing together is in our nature.",c:"Forming communities and governing ourselves is natural to humans.",e:"Even on a playground, kids naturally form groups, make rules, and pick leaders."},
+]},
+{name:"Power & The State",ideas:[
+{t:"It Is Better to Be Feared Than Loved",by:"Machiavelli",s:"A practical guide to real politics: leaders must sometimes be tough and cunning. Being too nice can lead to chaos; being respected (even feared) maintains order.",c:"Effective leadership requires pragmatism over idealism.",e:"A strict but fair teacher keeps order better than one who wants to be everyone's friend."},
+{t:"Life Without Government Would Be Nasty and Short",by:"Thomas Hobbes",s:"Without laws and government, people would fight each other constantly. We need a powerful authority to keep the peace — even if it means giving up some freedom.",c:"Government prevents the chaos of 'every person for themselves.'",e:"Imagine recess with NO rules and NO teachers. It might be fun for 5 minutes, then complete chaos."},
+{t:"Government Must Protect Natural Rights",by:"John Locke",s:"People are born with natural rights — life, liberty, and property. Government's only job is to protect these rights. If it fails, the people can replace it.",c:"Power comes from the people and must serve their rights.",e:"You elect a class president to represent you. If they become unfair, you vote them out."},
+{t:"Power Must Be Separated",by:"Montesquieu",s:"No single person or group should hold all power. Split it into branches (making laws, enforcing laws, judging laws) so they check and balance each other.",c:"Dividing power prevents tyranny.",e:"In a school: one group writes rules, another enforces them, and a student court settles disputes. No one controls everything."},
+]},
+{name:"Revolution & Freedom",ideas:[
+{t:"The General Will of the People",by:"Rousseau",s:"The best decisions come from what the entire community wants together, not what one king decides. People must govern themselves collectively.",c:"Legitimate authority comes from the collective will of citizens.",e:"A class votes on field trip destinations together instead of the teacher deciding alone."},
+{t:"All Men Are Created Equal",by:"Thomas Jefferson",s:"Every person is born with equal rights. No one is naturally better or more deserving. This idea inspired the American Declaration of Independence.",c:"Equality is a birthright, not something earned or granted.",e:"In a fair race, everyone starts from the same starting line."},
+{t:"Workers of the World, Unite",by:"Karl Marx",s:"Workers produce all the wealth but get very little of it. Marx said workers everywhere should join together and create a society where resources are shared.",c:"Workers must unite to overthrow an exploitative system.",e:"If all the players on a team demanded better treatment from a bad coach, the coach would have to listen."},
+{t:"Civil Disobedience",by:"Henry David Thoreau / Gandhi / MLK",s:"When a law is truly unjust, people have a moral duty to disobey it — peacefully. This principle inspired some of history's greatest movements for justice.",c:"Peacefully breaking unjust laws is a moral duty.",e:"Rosa Parks refused to give up her bus seat because the rule was unfair — and changed history."},
+]},
+{name:"Modern Political Ideas",ideas:[
+{t:"The Banality of Evil",by:"Hannah Arendt",s:"Terrible acts aren't always committed by monsters. Ordinary people following orders without thinking can cause enormous harm. Evil can be boring and bureaucratic.",c:"Thoughtless obedience is more dangerous than deliberate cruelty.",e:"A worker stamps 'rejected' on applications without thinking about the people being affected."},
+{t:"Two Concepts of Liberty",by:"Isaiah Berlin",s:"There are two kinds of freedom: freedom FROM (nobody stops you from doing things) and freedom TO (you have the resources to actually do things). Both matter.",c:"Negative liberty (from interference) and positive liberty (to achieve goals) are both essential.",e:"You're 'free' to eat at any restaurant — but if you have no money, that freedom means nothing."},
+{t:"Justice as Fairness",by:"John Rawls",s:"Design a society without knowing where you'll end up in it. Behind this 'veil of ignorance,' you'd create the fairest possible system.",c:"Fair rules are those designed without knowing your own advantage.",e:"Dividing candy while blindfolded — you'd make sure every portion is equal!"},
+{t:"Democracy Needs Free Speech",by:"John Stuart Mill",s:"Even wrong or offensive ideas should be allowed, because banning them makes us weaker thinkers. Truth gets stronger when it's challenged and debated.",c:"Free expression is essential for truth and democracy.",e:"A debate team gets better by arguing against the strongest opponents, not the weakest."},
+]},
+],
+topIdeas:["Separation of powers (Montesquieu)","Natural rights (Locke)","Social contract theory","Civil disobedience (Thoreau/Gandhi/MLK)","Democracy and free speech (Mill)","Marx's worker revolution","Rawls' justice as fairness","Hobbes' state of nature","Arendt's banality of evil","Two concepts of liberty (Berlin)"],
+storyIdeas:[
+{title:"The Three Branches",desc:"Three siblings each control one aspect of their treehouse rules — one writes them, one enforces them, one judges disputes. (Montesquieu)"},
+{title:"The Veil Game",desc:"Kids design a new board game while blindfolded about what piece they'll play — discovering fairness naturally. (Rawls)"},
+{title:"The Playground Revolution",desc:"A bully takes over the playground. Kids organize a peaceful protest that changes everything. (Civil disobedience)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 4. SOCIOLOGY
+// ──────────────────────────────────────────
+{
+id:"sociology",title:"Sociology",emoji:"👥",color:"#4ade80",
+desc:"How do societies work? Why do people behave differently in groups? What shapes cultures?",
+tags:["Society","Culture","Identity","Institutions"],
+sections:[
+{name:"Foundations of Sociology",ideas:[
+{t:"Society Is a System of Parts",by:"Émile Durkheim",s:"Society works like a body — each part (family, schools, government) has a job. When all parts work together, society is healthy. When one breaks, everyone suffers.",c:"Society functions as an interconnected system where each institution plays a role.",e:"A school is like a body: teachers are the brain, students the heart, janitors the immune system — all essential."},
+{t:"The Protestant Ethic and Capitalism",by:"Max Weber",s:"Weber noticed that Protestant countries became rich faster. He argued that the Protestant belief in hard work as a religious duty helped create modern capitalism.",c:"Cultural beliefs can drive economic systems.",e:"If your family culture values saving money over spending, you'll likely end up wealthier — culture shapes economics."},
+{t:"Class, Status, and Power",by:"Karl Marx / Max Weber",s:"Society is divided by wealth (class), social respect (status), and political influence (power). These three forces determine your place in the social order.",c:"Social position is determined by economic, social, and political factors.",e:"A famous social media star might have high status but low political power — the three don't always match."},
+]},
+{name:"Culture & Identity",ideas:[
+{t:"We Perform Our Identity",by:"Erving Goffman",s:"Life is like a stage. We all 'perform' different roles depending on the audience — you act differently with friends than with teachers. There's a 'front stage' and a 'back stage.'",c:"Social life is a series of performances we adjust for different audiences.",e:"You speak politely to your teacher but use slang with your friends. Same person — different 'performance.'"},
+{t:"Society Labels People as Deviant",by:"Howard Becker",s:"Being 'bad' isn't about what you do — it's about whether society labels you as bad. The same action might be punished in one person and ignored in another.",c:"Deviance is created by social labeling, not by the act itself.",e:"A rich kid and a poor kid do the same thing. One is called 'spirited'; the other is called 'a troublemaker.'"},
+{t:"Gender Is Socially Constructed",by:"Judith Butler",s:"There's no natural way to 'be' a man or woman. Gender roles are performances that society teaches us to repeat until they feel natural.",c:"Gender is a repeated social performance, not a biological fact.",e:"Boys 'should' be tough, girls 'should' be gentle — but who decided that? Society did, not nature."},
+]},
+{name:"Power & Inequality",ideas:[
+{t:"The Powerful Control What We Think",by:"Antonio Gramsci",s:"The ruling class stays in power not just by force but by making their ideas seem like 'common sense.' This invisible control is called cultural hegemony.",c:"Dominant groups maintain power by controlling ideas and culture.",e:"Ads telling you 'you need this product to be happy' shape what you believe without you realizing it."},
+{t:"Knowledge Is Power",by:"Michel Foucault",s:"Whoever controls knowledge and information controls society. Schools, hospitals, prisons — all institutions use knowledge to shape and control behavior.",c:"Power operates through the control and production of knowledge.",e:"A teacher controls the classroom partly through knowing things students don't — knowledge IS power."},
+{t:"The Rich Get Richer (Social Reproduction)",by:"Pierre Bourdieu",s:"Wealthy families pass down not just money but also cultural knowledge, manners, and connections that help their children stay wealthy. The system reproduces itself.",c:"Social inequality is reproduced across generations through cultural capital.",e:"Kids from educated families learn dinner-table conversation skills that help them in job interviews later."},
+]},
+{name:"Modern Society",ideas:[
+{t:"Society Is Becoming Liquid",by:"Zygmunt Bauman",s:"Modern life is like liquid — constantly changing, nothing is stable. Jobs, relationships, identities all shift rapidly. Nothing feels permanent anymore.",c:"Modern society is characterized by constant, rapid change and instability.",e:"Your parents might have had one job for 30 years. You might have 10 different careers."},
+{t:"The Global Village",by:"Marshall McLuhan",s:"Technology has connected the whole world. News from across the globe reaches you instantly. We all live in one giant 'village' now.",c:"Communication technology has shrunk the world into an interconnected community.",e:"A tweet from Tokyo trends in Toronto within minutes — the world is now one conversation."},
+]},
+],
+topIdeas:["Society as a system (Durkheim)","Class and inequality (Marx/Weber)","Social performance (Goffman)","Cultural hegemony (Gramsci)","Knowledge is power (Foucault)","Social reproduction (Bourdieu)","Labeling theory (Becker)","Gender as performance (Butler)","Liquid modernity (Bauman)","The global village (McLuhan)"],
+storyIdeas:[
+{title:"The Stage Kids",desc:"Kids discover everyone around them is 'acting' differently depending on who's watching — school, home, playground. (Goffman)"},
+{title:"The Label Jar",desc:"A magical jar labels children as 'good' or 'trouble' randomly — and the labels start changing how everyone treats them. (Becker)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 5. ECONOMICS
+// ──────────────────────────────────────────
+{
+id:"economics",title:"Economics",emoji:"📊",color:"#60a5fa",
+desc:"How do money, markets, and trade work? Why are some countries rich and others poor?",
+tags:["Markets","Money","Trade","Wealth"],
+sections:[
+{name:"Foundations of Economics",ideas:[
+{t:"The Invisible Hand",by:"Adam Smith",s:"When everyone acts in their own self-interest — buying what they want, selling what they make — the economy organizes itself without anyone planning it, as if guided by an 'invisible hand.'",c:"Free markets self-organize through individual self-interest.",e:"Nobody plans how many bakeries a city needs. But if people want bread, bakeries appear. Supply meets demand automatically."},
+{t:"Supply and Demand",by:"Alfred Marshall",s:"When something is rare and wanted, its price goes up. When it's plentiful, price goes down. This push-and-pull between supply and demand sets prices for everything.",c:"Prices are determined by the balance of supply and demand.",e:"Only 100 tickets to a concert exist but 10,000 people want one? Prices skyrocket."},
+{t:"The Division of Labor Makes Us Richer",by:"Adam Smith",s:"When each person specializes in one task instead of doing everything, everyone becomes much more productive. A pin factory with 10 specialists makes far more pins than 10 people each making whole pins.",c:"Specialization dramatically increases productivity.",e:"A restaurant kitchen: one person chops, one cooks, one plates. Together they serve 100 meals an hour — alone, maybe 5 each."},
+]},
+{name:"Markets & Trade",ideas:[
+{t:"Trade Benefits Everyone (Comparative Advantage)",by:"David Ricardo",s:"Even if one country is better at making EVERYTHING, both countries benefit from trade. Each should focus on what they do RELATIVELY best and trade for the rest.",c:"Specialization and trade make everyone better off.",e:"Even if you're better at both math AND art than your partner, you should do the math and let them do the art — you'll both finish faster."},
+{t:"Markets Can Fail",by:"Various Economists",s:"Sometimes markets don't work well on their own — pollution, monopolies, and inequality are 'market failures' that need government to step in and fix.",c:"Markets aren't perfect and sometimes need government intervention.",e:"A factory polluting a river doesn't pay the cleanup cost — the community does. That's a market failure."},
+{t:"There's No Such Thing as a Free Lunch",by:"Milton Friedman",s:"Everything has a cost, even when it seems free. Free shipping? It's built into the product price. Free apps? They sell your data. Nothing is truly free.",c:"Every choice involves a hidden cost or trade-off.",e:"A 'free' game on your phone makes money by showing you ads and selling your information."},
+]},
+{name:"Money & Government",ideas:[
+{t:"Government Should Spend During Bad Times",by:"John Maynard Keynes",s:"When the economy crashes, people stop spending and businesses close. Keynes said the government should step in and spend money to restart the economy — like jump-starting a car.",c:"Government spending can rescue an economy from recession.",e:"In a drought, if no one waters the garden, everything dies. The government is like someone turning on the sprinklers when no one else will."},
+{t:"Inflation Is Always a Money Problem",by:"Milton Friedman",s:"When too much money chases too few goods, prices rise — that's inflation. Friedman said controlling the money supply is the key to stable prices.",c:"Printing too much money causes prices to rise.",e:"If everyone in class suddenly got 1000 extra points, would each point be worth the same? No — points become worthless."},
+{t:"Creative Destruction Drives Progress",by:"Joseph Schumpeter",s:"New inventions destroy old industries — but that destruction is progress. Cars killed horse carriages. Streaming killed DVD stores. It's painful but necessary.",c:"Economic progress requires the destruction of old, outdated systems.",e:"Netflix put Blockbuster out of business. Sad for Blockbuster workers, but great for everyone who loves streaming."},
+]},
+{name:"Development & Inequality",ideas:[
+{t:"Poor Countries Are Trapped",by:"Various Development Economists",s:"Some countries are stuck in a cycle: they're poor because they can't invest, and they can't invest because they're poor. Breaking this cycle is the central challenge of development.",c:"Poverty can be a self-reinforcing trap that's hard to escape.",e:"You need money to go to college, but you need college to get money. That's a poverty trap."},
+{t:"Inequality Hurts Everyone",by:"Thomas Piketty",s:"When the richest people's wealth grows faster than the economy, inequality widens generation after generation. Piketty showed this has been happening for centuries.",c:"When investment returns exceed economic growth, inequality inevitably increases.",e:"If one Monopoly player starts with triple the money, they'll probably own everything by the end."},
+]},
+],
+topIdeas:["Invisible hand (Smith)","Supply and demand","Keynesian government spending","Creative destruction (Schumpeter)","Comparative advantage (Ricardo)","Inflation and money supply (Friedman)","Market failures","Division of labor","Poverty traps","Inequality (Piketty)"],
+storyIdeas:[
+{title:"The Invisible Helper",desc:"A village market runs perfectly without a boss — teaching how supply and demand work like magic. (Adam Smith)"},
+{title:"The Broken Bicycle Cycle",desc:"A town stuck in a cycle of poverty finds a creative way to break free. (Poverty traps)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 6. BUSINESS
+// ──────────────────────────────────────────
+{
+id:"business",title:"Business",emoji:"💼",color:"#fb923c",
+desc:"How do companies start, grow, and succeed? What makes great leaders and great ideas?",
+tags:["Startups","Leadership","Strategy","Innovation"],
+sections:[
+{name:"Starting & Growing a Business",ideas:[
+{t:"Start With Why",by:"Simon Sinek",s:"Great companies don't just sell products — they sell a PURPOSE. Apple doesn't just make computers; they believe in 'thinking differently.' Why you do it matters more than what you do.",c:"People buy why you do it, not what you do.",e:"Two lemonade stands — one says 'Buy lemonade!' The other says 'We're raising money for the animal shelter!' Which gets more customers?"},
+{t:"The Lean Startup",by:"Eric Ries",s:"Don't spend years building a perfect product. Build something small, test it with real customers, learn from their feedback, and improve. Repeat fast!",c:"Build, measure, learn — fail fast and iterate.",e:"Instead of spending a year writing a whole cookbook, publish one recipe online, see if people like it, then expand."},
+{t:"Disruptive Innovation",by:"Clayton Christensen",s:"Big companies often fail because they ignore small, cheap competitors. Those small companies slowly improve until they take over the whole market.",c:"Small innovations at the bottom of a market can overthrow industry giants.",e:"Smartphones started as simple phones that couldn't match computers — then they replaced cameras, GPS devices, and music players."},
+]},
+{name:"Leadership & Management",ideas:[
+{t:"Good to Great",by:"Jim Collins",s:"The best leaders aren't flashy celebrities. They're humble, determined, and focused on making their team great — not making themselves famous.",c:"Great leadership combines personal humility with fierce professional will.",e:"The best team captain isn't the loudest — they're the one who trains hardest and lifts everyone else up."},
+{t:"The 7 Habits of Highly Effective People",by:"Stephen Covey",s:"Success comes from building strong habits: be proactive, begin with the end in mind, prioritize what matters, seek win-win solutions, listen first, collaborate, and keep improving yourself.",c:"Character-based habits drive lasting personal and professional success.",e:"A student who plans their week, focuses on important work first, and listens carefully in class outperforms raw talent."},
+{t:"Emotional Intelligence Matters More Than IQ",by:"Daniel Goleman",s:"The smartest person in the room isn't always the most successful. Understanding your own emotions AND other people's feelings is the real superpower at work.",c:"Self-awareness and empathy are more important than raw intelligence.",e:"A brilliant coder who can't work with others will lose to an average coder who's a great team player."},
+]},
+{name:"Strategy & Competition",ideas:[
+{t:"Competitive Advantage (Five Forces)",by:"Michael Porter",s:"A business must understand five forces: competition, new entrants, substitute products, buyer power, and supplier power. Understanding all five determines if you'll make money.",c:"Industry competition is shaped by five structural forces.",e:"A lemonade stand near a school has great location — but if 10 other stands open nearby, profits vanish."},
+{t:"Blue Ocean Strategy",by:"Kim & Mauborgne",s:"Instead of competing in bloody 'red oceans' where everyone fights, create a 'blue ocean' — a totally new market space with no competition.",c:"Create uncontested market space rather than fighting competitors.",e:"Cirque du Soleil didn't compete with circuses — they invented a whole new kind of entertainment."},
+{t:"The Long Tail",by:"Chris Anderson",s:"The internet lets businesses profit from selling MANY niche products, not just a few blockbusters. Small, specialized markets add up to big money.",c:"In the digital age, many niche products can be as profitable as few mass products.",e:"A bookstore sells 100 copies of 10 bestsellers. Amazon sells 1 copy each of 10,000 obscure books. Amazon wins."},
+]},
+],
+topIdeas:["Start with Why (Sinek)","Lean Startup method (Ries)","Disruptive innovation (Christensen)","Five Forces (Porter)","Blue Ocean Strategy","Emotional intelligence (Goleman)","Good to Great leadership (Collins)","The Long Tail (Anderson)","7 Habits (Covey)","Build-Measure-Learn cycle"],
+storyIdeas:[
+{title:"The Why Shop",desc:"Two competing shops on a street — one sells stuff, the other sells a mission. Kids learn why purpose matters. (Sinek)"},
+{title:"The Tiny Invention",desc:"A small invention nobody notices slowly gets better and better — until it changes the whole town. (Christensen)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 7. FINANCE
+// ──────────────────────────────────────────
+{
+id:"finance",title:"Finance",emoji:"💰",color:"#22c55e",
+desc:"How does money grow? What are stocks, bonds, and investments? How do banks and markets work?",
+tags:["Investing","Banking","Risk","Markets"],
+sections:[
+{name:"Money & Banking",ideas:[
+{t:"The Time Value of Money",by:"Core Finance Principle",s:"A dollar today is worth more than a dollar tomorrow — because you can invest today's dollar and earn interest. Money NOW beats the same money LATER.",c:"Money has more value the sooner you receive it because of its earning potential.",e:"Would you rather have ₹100 today or ₹100 next year? Today! You could invest it and have ₹110 by next year."},
+{t:"How Banks Create Money",by:"Fractional Reserve Banking",s:"Banks don't keep all your money in a vault. They lend most of it out. That lending creates new money in the economy — banks literally make money from money!",c:"Banks create money by lending out a fraction of deposits.",e:"You deposit ₹1000. The bank lends ₹900 to someone. That person deposits it. Now there's ₹1900 in the system from your original ₹1000!"},
+{t:"Compound Interest Is the 8th Wonder",by:"(Attributed to Einstein)",s:"When you earn interest on your interest, your money grows faster and faster over time. Even small amounts become enormous with decades of compounding.",c:"Interest on interest creates exponential growth over time.",e:"₹1000 at 10% becomes ₹1100 in year 1, ₹1210 in year 2, ₹1331 in year 3 — it snowballs!"},
+]},
+{name:"Investing & Markets",ideas:[
+{t:"Don't Put All Your Eggs in One Basket (Diversification)",by:"Harry Markowitz",s:"Spreading your money across many different investments reduces risk. If one investment fails, the others protect you.",c:"Diversification reduces risk without necessarily reducing returns.",e:"If you plant 5 different crops instead of 1, a disease killing one crop won't ruin your whole farm."},
+{t:"The Market Is (Usually) Right",by:"Eugene Fama (Efficient Markets)",s:"Stock prices already reflect all available information. You can't consistently beat the market because the price already accounts for everything known.",c:"Prices in financial markets reflect all available information.",e:"If you hear a rumor about a company, by the time you act, thousands of traders already moved the price."},
+{t:"Risk and Return Go Together",by:"Core Principle",s:"Want higher returns? Accept higher risk. Safe investments (bonds) earn less. Risky investments (stocks) can earn more — but can also lose more.",c:"Higher potential returns always come with higher risk.",e:"Keeping money under your mattress is safe but earns nothing. Investing in a startup might make you rich — or lose everything."},
+{t:"Buy When Others Are Fearful",by:"Warren Buffett / Value Investing",s:"When everyone panics and sells, good investments become cheap. Smart investors buy during fear and sell during excitement — going against the crowd.",c:"The best time to invest is when everyone else is afraid.",e:"When everyone's selling umbrellas because it's sunny, that's the best time to buy cheap — because rain always comes back."},
+]},
+{name:"Corporate Finance",ideas:[
+{t:"A Company Must Create Value",by:"Core Principle",s:"A company is only worth what it is if it generates more money than it costs to run. The goal of finance is to make decisions that increase the company's overall value.",c:"Financial decisions should maximize the total value of the firm.",e:"A lemonade stand that spends ₹50 on supplies but earns ₹200 creates ₹150 of value."},
+{t:"Debt Can Be Useful",by:"Modigliani & Miller",s:"Borrowing money isn't always bad. Used wisely, debt can help a company grow faster — like a lever that multiplies your effort. But too much debt is dangerous.",c:"Strategic use of debt can amplify returns but increases risk.",e:"Borrowing money to buy a machine that triples your production makes sense. Borrowing for no reason doesn't."},
+]},
+],
+topIdeas:["Compound interest","Diversification (Markowitz)","Time value of money","Risk-return tradeoff","Efficient market hypothesis","Value investing (Buffett)","Fractional reserve banking","Debt as leverage","Buy fear, sell greed","Company value creation"],
+storyIdeas:[
+{title:"The Snowball Money",desc:"A magical coin that doubles every year teaches a child the power of compound interest. (Compounding)"},
+{title:"The Five Baskets",desc:"A farmer learns to spread seeds across five fields — discovering diversification the hard way. (Markowitz)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 8. MONEY
+// ──────────────────────────────────────────
+{
+id:"money",title:"Money",emoji:"🪙",color:"#eab308",
+desc:"What is money? Where did it come from? How does it shape everyday life?",
+tags:["Currency","Saving","Spending","History"],
+sections:[
+{name:"What Is Money?",ideas:[
+{t:"Money Is a Shared Agreement",by:"Anthropological View",s:"Money only works because everyone AGREES it has value. A ₹500 note is just paper — but we all trust it's worth ₹500, so it works.",c:"Money's value comes from collective trust, not from the physical object itself.",e:"Try paying for something with a beautifully drawn picture. No one accepts it — because there's no shared agreement about its value."},
+{t:"From Barter to Bitcoin",by:"History of Money",s:"First people traded goods directly (barter). Then came coins, paper money, and now digital currency. Each step made trade easier and faster.",c:"Money has evolved to become increasingly abstract and efficient.",e:"Trading a cow for shoes is hard — what if the cobbler doesn't want a cow? Money solves this problem."},
+{t:"Inflation Eats Your Savings",by:"Core Concept",s:"When prices rise over time, each unit of money buys less stuff. Your grandparents could buy a meal for ₹5 — now it costs ₹200. That's inflation eating purchasing power.",c:"Rising prices reduce the real value of money over time.",e:"An ice cream cone cost ₹2 when your parents were kids. Now it's ₹50. Same ice cream — but money buys less."},
+]},
+{name:"Personal Finance",ideas:[
+{t:"Pay Yourself First",by:"Core Principle",s:"Before paying bills or buying things, save a portion of your income. Treat saving like the most important 'bill' you pay — to your future self.",c:"Prioritize saving before spending.",e:"When you get pocket money, immediately put 20% in your piggy bank BEFORE buying anything."},
+{t:"The Difference Between Needs and Wants",by:"Core Concept",s:"Needs are things you must have (food, shelter, clothes). Wants are things you'd like but can live without (new phone, fancy shoes). Confusing them causes money problems.",c:"Distinguishing necessities from desires is the foundation of financial health.",e:"You NEED shoes. You WANT designer shoes. The difference could be ₹5,000."},
+{t:"Debt Is a Promise to Your Future Self",by:"Core Concept",s:"When you borrow money, your future self has to pay it back with interest. Borrowing makes today easier but tomorrow harder.",c:"Debt shifts today's costs to the future with added interest.",e:"Borrowing ₹100 to buy a game today means paying back ₹120 later — your future self pays extra for today's fun."},
+]},
+],
+topIdeas:["Money as shared trust","Evolution from barter to digital","Inflation's effect on savings","Pay yourself first","Needs vs wants","Compound interest","Debt management","Budgeting basics","Currency and trade","Financial literacy"],
+storyIdeas:[
+{title:"The Island Coins",desc:"Kids stranded on an island invent their own money — learning why trust makes currency work. (Nature of money)"},
+{title:"The Time-Traveling Rupee",desc:"A ₹10 coin travels through decades, buying less and less — teaching inflation through adventure. (Inflation)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 9. SCIENCE
+// ──────────────────────────────────────────
+{
+id:"science",title:"Science",emoji:"🔬",color:"#06b6d4",
+desc:"How do we understand the universe? The biggest discoveries and breakthroughs in science.",
+tags:["Discovery","Experiments","Universe","Nature"],
+sections:[
+{name:"The Scientific Method",ideas:[
+{t:"Observe, Hypothesize, Experiment, Conclude",by:"The Scientific Method",s:"Science follows a pattern: watch carefully, guess WHY something happens, test your guess with an experiment, and see if you were right. Then repeat!",c:"Knowledge advances through systematic observation, testing, and revision.",e:"You notice plants near the window grow taller. Guess: they need sunlight. Test: move some to darkness. Result: they stop growing. Hypothesis confirmed!"},
+{t:"Science Advances by Proving Things WRONG",by:"Karl Popper",s:"A good scientific theory must be testable — and it must be POSSIBLE to prove it wrong. If you can't disprove something, it's not really science.",c:"True science makes predictions that can be tested and potentially disproven.",e:"'All swans are white' is scientific because finding ONE black swan proves it wrong. (And black swans exist!)"},
+]},
+{name:"Physics & The Universe",ideas:[
+{t:"Everything Is Made of Atoms",by:"Democritus / Dalton",s:"All matter is made of tiny, invisible building blocks called atoms. Different combinations of atoms create everything — from water to diamonds to your body.",c:"Atoms are the fundamental building blocks of all matter.",e:"Imagine LEGO: just a few types of bricks can build anything — castles, cars, dragons. Atoms work the same way."},
+{t:"Gravity Pulls Everything Together",by:"Isaac Newton",s:"Every object pulls on every other object. The bigger the object, the stronger the pull. That's why apples fall down and planets orbit the sun.",c:"All objects with mass attract each other through gravity.",e:"The Earth pulls you down (that's why you don't float away), and you pull the Earth up — but you're too small to notice!"},
+{t:"E = mc² (Energy and Mass Are the Same)",by:"Albert Einstein",s:"Matter and energy are two forms of the same thing. A tiny amount of matter contains an enormous amount of energy — that's what powers the sun and nuclear energy.",c:"Mass can be converted to energy and vice versa.",e:"If you could convert a single penny into pure energy, it would power a city for days. That's how much energy is locked in matter!"},
+{t:"The Universe Started with a Big Bang",by:"Georges Lemaître",s:"About 13.8 billion years ago, everything in the universe was squeezed into an incredibly tiny, hot point — then it exploded outward. The universe has been expanding ever since.",c:"The universe began from a single point and has been expanding for 13.8 billion years.",e:"Imagine blowing up a balloon with dots on it. As it expands, all the dots move away from each other — that's how galaxies are spreading apart."},
+]},
+{name:"Life Sciences",ideas:[
+{t:"Evolution by Natural Selection",by:"Charles Darwin",s:"Living things that are better suited to their environment survive and pass on their traits. Over millions of years, this creates new species. It's nature's way of 'improving' life.",c:"Species change over time through survival of the fittest variants.",e:"In a forest of brown and white mice, owls catch the white ones more easily. Over generations, the population becomes mostly brown."},
+{t:"DNA Is the Code of Life",by:"Watson, Crick & Franklin",s:"Inside every cell is a twisted ladder called DNA. It contains instructions for building and running your entire body — like a biological recipe book.",c:"DNA carries the genetic instructions for all living organisms.",e:"DNA is like a recipe book with 3 billion letters. Every cell in your body has a copy of this book."},
+]},
+{name:"Earth & Space",ideas:[
+{t:"The Earth Moves Around the Sun",by:"Copernicus / Galileo",s:"For centuries, people thought Earth was the center of the universe. Copernicus showed the Earth orbits the Sun — a revolution that changed everything.",c:"The sun, not Earth, is the center of our solar system.",e:"Imagine thinking your house is the center of the city — then climbing a mountain and seeing the real layout."},
+{t:"Plate Tectonics Shape the Earth",by:"Alfred Wegener",s:"The continents are slowly floating on molten rock, moving a few centimeters per year. They crash together (making mountains), pull apart (making oceans), and cause earthquakes.",c:"Earth's surface is divided into moving plates that reshape the planet.",e:"Put puzzle pieces on water — they drift, bump together, and separate. That's what continents do, very slowly."},
+]},
+],
+topIdeas:["Scientific method","Evolution by natural selection","E=mc² (Einstein)","Atomic theory","Big Bang","DNA as the code of life","Gravity (Newton)","Plate tectonics","Germ theory","Heliocentric model (Copernicus)"],
+storyIdeas:[
+{title:"The Atom Builders",desc:"Tiny characters inside atoms build everything in the universe from a few simple pieces. (Atomic theory)"},
+{title:"The Great Detectives",desc:"Science detectives solve mysteries using only observation, experiments, and evidence. (Scientific method)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 10. BIOLOGY
+// ──────────────────────────────────────────
+{
+id:"biology",title:"Biology",emoji:"🧬",color:"#22d3ee",
+desc:"How does life work? From tiny cells to vast ecosystems, the science of living things.",
+tags:["Life","Cells","Evolution","Ecosystems"],
+sections:[
+{name:"The Cell",ideas:[
+{t:"All Living Things Are Made of Cells",by:"Cell Theory",s:"Every living thing — from bacteria to blue whales — is made of tiny units called cells. Cells are the building blocks of life.",c:"The cell is the fundamental unit of all life.",e:"Your body has about 37 trillion cells. Each one is like a tiny factory with its own power source, instructions, and waste disposal."},
+{t:"Cells Have Tiny Organs (Organelles)",by:"Cell Biology",s:"Inside each cell are miniature structures that do specific jobs — the nucleus is the brain, mitochondria are the power plants, and ribosomes are the protein factories.",c:"Cellular organelles perform specialized functions like organs in a body.",e:"A cell is like a tiny city: the nucleus is city hall, mitochondria are power stations, and the membrane is the city wall."},
+]},
+{name:"Genetics & DNA",ideas:[
+{t:"Traits Are Inherited in Patterns",by:"Gregor Mendel",s:"Mendel grew pea plants and discovered that traits (like flower color) are passed down in predictable patterns. Some traits are dominant, others are hidden (recessive).",c:"Inherited traits follow predictable mathematical patterns.",e:"Two brown-eyed parents can have a blue-eyed child if both carry a hidden 'blue eye' gene."},
+{t:"DNA Can Be Edited",by:"CRISPR Technology",s:"Scientists can now precisely cut and edit DNA like editing text on a computer. This could cure genetic diseases — but raises huge ethical questions.",c:"Gene-editing technology gives humans the power to rewrite the code of life.",e:"Imagine a spell-checker for DNA that can find and fix 'typos' that cause diseases."},
+]},
+{name:"Evolution",ideas:[
+{t:"Species Change Over Time",by:"Darwin & Wallace",s:"Living things slowly change over generations. Those best adapted to their environment survive and reproduce. Over millions of years, new species emerge.",c:"Natural selection drives the gradual transformation of species.",e:"Giraffes with longer necks reached higher leaves, survived better, and had babies with long necks too."},
+{t:"All Life Shares a Common Ancestor",by:"Tree of Life",s:"Every living thing on Earth — humans, mushrooms, bacteria, oak trees — shares a distant ancestor. We're all related on the great tree of life.",c:"All life on Earth evolved from a single common ancestor.",e:"You and a banana share about 60% of the same DNA. You and a chimpanzee share 98%."},
+]},
+{name:"Ecology",ideas:[
+{t:"Everything Is Connected (Ecosystems)",by:"Ecology",s:"In nature, everything depends on everything else. Plants need sun, animals eat plants, decomposers break down dead things. Remove one piece and the whole system wobbles.",c:"Ecosystems are webs of interdependent relationships.",e:"Remove wolves from a forest → deer overpopulate → they eat all the plants → rivers change course. One change ripples through everything."},
+{t:"Biodiversity Keeps Ecosystems Healthy",by:"Conservation Biology",s:"The more different species an ecosystem has, the stronger and more resilient it is. Losing species makes the whole system fragile.",c:"Species diversity is essential for ecosystem stability.",e:"A garden with 20 plant species survives a disease better than one with just 1 species — diversity is insurance."},
+]},
+],
+topIdeas:["Cell theory","DNA and genetics","Evolution by natural selection","Ecosystem interconnection","Mendel's inheritance laws","Photosynthesis","CRISPR gene editing","Biodiversity","Common ancestor","Organelle functions"],
+storyIdeas:[
+{title:"The Cell City",desc:"Shrink down and explore a cell like a city — visiting the nucleus (city hall), mitochondria (power stations), and more."},
+{title:"The Family Tree of Everything",desc:"A child traces their family tree all the way back to discover they're related to mushrooms, fish, and trees. (Common ancestor)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 11. CHEMISTRY
+// ──────────────────────────────────────────
+{
+id:"chemistry",title:"Chemistry",emoji:"⚗️",color:"#a855f7",
+desc:"What is everything made of? How do substances combine, react, and transform?",
+tags:["Elements","Reactions","Molecules","Materials"],
+sections:[
+{name:"Building Blocks of Matter",ideas:[
+{t:"The Periodic Table Organizes Everything",by:"Dmitri Mendeleev",s:"Mendeleev arranged all known elements into a table by their properties. He even predicted elements that hadn't been discovered yet — and he was right!",c:"All matter is made from ~118 elements organized by their properties.",e:"The periodic table is like a seating chart for elements — each seat tells you about the element's personality."},
+{t:"Atoms Have a Nucleus and Electron Clouds",by:"Atomic Structure",s:"An atom has a tiny, heavy center (nucleus with protons and neutrons) surrounded by a cloud of electrons zipping around it.",c:"Atoms consist of a dense nucleus surrounded by orbiting electrons.",e:"Imagine a marble (nucleus) in the center of a football stadium (electron cloud). Atoms are mostly empty space!"},
+{t:"Molecules Are Atoms Bonded Together",by:"Chemical Bonding",s:"Atoms link together by sharing or swapping electrons. Water is two hydrogens bonded to one oxygen. The way atoms bond determines everything about a substance.",c:"Chemical bonds between atoms create the molecules that make up everything around us.",e:"H₂O — two hydrogen atoms holding hands with one oxygen — that simple bond creates water, the basis of all life."},
+]},
+{name:"Chemical Reactions",ideas:[
+{t:"Chemical Reactions Rearrange Atoms",by:"Core Chemistry",s:"In a reaction, atoms break apart and reconnect in new arrangements. Nothing is created or destroyed — just rearranged. It's like rebuilding LEGO into new shapes.",c:"Chemical reactions rearrange atoms without creating or destroying them.",e:"Burning wood: carbon and oxygen atoms rearrange into CO₂ and ash. Same atoms, new arrangement."},
+{t:"Acids and Bases",by:"Core Chemistry",s:"Acids taste sour (like lemon) and bases feel slippery (like soap). The pH scale measures how acidic or basic something is. Mixing them creates a neutralization reaction.",c:"Acids and bases are opposite ends of the pH spectrum.",e:"Lemon juice (acid) + baking soda (base) = fizzy, bubbly fun! That's a neutralization reaction."},
+{t:"Catalysts Speed Up Reactions",by:"Catalysis",s:"A catalyst is a substance that speeds up a chemical reaction without being used up itself. Your body is full of catalysts called enzymes.",c:"Catalysts accelerate reactions without being consumed.",e:"Your stomach has enzymes (catalysts) that break down food in hours — without them, digestion would take weeks."},
+]},
+{name:"Materials & Applications",ideas:[
+{t:"Carbon Is the Element of Life",by:"Organic Chemistry",s:"Carbon can bond with four other atoms at once, allowing it to build incredibly complex molecules. All living things are carbon-based — it's the backbone of life.",c:"Carbon's unique bonding ability makes it the foundation of all organic chemistry.",e:"Carbon is like a connector piece with four arms — it can link up in chains, rings, and branches to build anything biological."},
+{t:"Plastics Are Long Molecular Chains",by:"Polymer Chemistry",s:"Plastics are made of tiny molecules linked into extremely long chains called polymers. This structure makes them flexible, strong, and long-lasting — sometimes too long-lasting.",c:"Polymers are long chains of repeated molecular units.",e:"Imagine stringing a million beads on a thread — that's a polymer chain. That's why plastic is so tough."},
+]},
+],
+topIdeas:["Periodic table (Mendeleev)","Atomic structure","Chemical bonding","Conservation of mass in reactions","Acids and bases","Carbon chemistry","Catalysts and enzymes","Polymer chemistry","States of matter","Electrochemistry"],
+storyIdeas:[
+{title:"The Element Zoo",desc:"Each element is an animal with a unique personality — hydrogen is tiny and hyperactive, gold is calm and shiny. (Periodic table)"},
+{title:"The Bonding Game",desc:"Atoms are characters who need to find partners by sharing or trading — building molecules together. (Chemical bonding)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 12. PHYSICS
+// ──────────────────────────────────────────
+{
+id:"physics",title:"Physics",emoji:"⚛️",color:"#6366f1",
+desc:"How does the universe work? The fundamental laws governing matter, energy, space, and time.",
+tags:["Forces","Energy","Space-Time","Quantum"],
+sections:[
+{name:"Classical Mechanics",ideas:[
+{t:"Objects in Motion Stay in Motion",by:"Newton (1st Law)",s:"A ball rolling on a perfectly smooth surface would roll forever. Objects keep doing what they're doing unless a force stops them. This is called inertia.",c:"Objects resist changes to their motion.",e:"When a bus suddenly stops, you lurch forward because YOUR body wants to keep moving."},
+{t:"Force = Mass × Acceleration",by:"Newton (2nd Law)",s:"A heavier object needs more force to move. A lighter object needs less. This simple equation describes how forces make things speed up or slow down.",c:"The force needed depends on mass and how fast you want to accelerate.",e:"Pushing an empty shopping cart is easy. Pushing one full of groceries is hard — same push, different mass."},
+{t:"Every Action Has an Equal Reaction",by:"Newton (3rd Law)",s:"When you push something, it pushes back equally. A rocket works by pushing exhaust gas downward — and the gas pushes the rocket upward.",c:"Forces always come in equal and opposite pairs.",e:"When you jump, you push Earth down and Earth pushes you up. (Earth is too heavy for you to notice its movement!)"},
+]},
+{name:"Energy & Thermodynamics",ideas:[
+{t:"Energy Cannot Be Created or Destroyed",by:"1st Law of Thermodynamics",s:"Energy only changes form — from light to heat, from chemical to motion. The total energy in the universe never changes, it just transforms.",c:"Energy is conserved; it transforms but never appears or disappears.",e:"A ball at the top of a hill has stored energy. As it rolls down, that energy becomes motion. At the bottom, it becomes heat and sound."},
+{t:"Everything Moves Toward Disorder",by:"2nd Law / Entropy",s:"Left alone, things naturally become more messy and disorganized. Your room gets messy on its own but never cleans itself. The universe works the same way.",c:"Entropy (disorder) always increases in closed systems.",e:"A sandcastle crumbles into a pile. A pile of sand never spontaneously builds itself into a castle. That's entropy."},
+]},
+{name:"Electromagnetism & Light",ideas:[
+{t:"Light Is Both a Wave and a Particle",by:"Wave-Particle Duality",s:"Light behaves like a wave (spreading and bending) AND like a particle (hitting things one photon at a time). It's both — and neither — at the same time.",c:"Light has dual wave-particle nature.",e:"Imagine something that's both a water wave AND a rubber ball at the same time. Weird? Welcome to physics!"},
+{t:"Electricity and Magnetism Are One Force",by:"James Clerk Maxwell",s:"Electricity and magnetism aren't separate forces — they're two sides of the same coin. Moving electricity creates magnetism, and moving magnets create electricity.",c:"Electricity and magnetism are unified as electromagnetism.",e:"A spinning magnet inside a generator creates electricity. An electric current in a wire creates a magnet. They're partners."},
+]},
+{name:"Modern Physics",ideas:[
+{t:"Nothing Travels Faster Than Light",by:"Einstein (Special Relativity)",s:"The speed of light is the universe's speed limit — nothing can exceed it. As you approach light speed, time slows down and distances shrink.",c:"The speed of light is the universal speed limit that warps space and time.",e:"If you traveled at 99.9% light speed for what felt like 1 year to you, centuries would pass on Earth!"},
+{t:"Gravity Bends Space and Time",by:"Einstein (General Relativity)",s:"Massive objects warp the fabric of space-time around them, like a bowling ball on a trampoline. Smaller objects roll toward the dip — that's gravity!",c:"Gravity is the curvature of space-time caused by mass.",e:"Put a bowling ball on a stretched blanket — it creates a dip. Roll a marble nearby — it curves toward the ball. That's how gravity works!"},
+{t:"You Can't Know Everything About a Particle",by:"Heisenberg (Uncertainty Principle)",s:"At the quantum level, you can know WHERE a particle is OR how fast it's going — but never both perfectly at the same time. Certainty has a limit.",c:"There's a fundamental limit to how precisely we can measure quantum properties.",e:"Imagine trying to measure a hummingbird — the harder you look at WHERE it is, the less sure you are of how fast it's moving."},
+]},
+],
+topIdeas:["Newton's three laws of motion","E=mc²","Speed of light limit","Gravity as curved space-time","Conservation of energy","Entropy and disorder","Wave-particle duality","Uncertainty principle","Electromagnetism (Maxwell)","Quantum mechanics basics"],
+storyIdeas:[
+{title:"The Speed Limit of the Universe",desc:"An adventurer tries to go faster and faster — discovering that time slows down as they approach light speed. (Relativity)"},
+{title:"The Messy Room Law",desc:"A kid discovers that the universe itself has a rule that says rooms get messier — the 2nd Law of Thermodynamics!"},
+]
+},
+
+// ──────────────────────────────────────────
+// 13. HISTORY
+// ──────────────────────────────────────────
+{
+id:"history",title:"History",emoji:"📜",color:"#d97706",
+desc:"The key events and turning points that shaped the world from ancient times to the modern era.",
+tags:["Civilizations","Wars","Revolutions","Empires"],
+sections:[
+{name:"Ancient Civilizations",ideas:[
+{t:"The First Cities (Mesopotamia)",by:"~3500 BCE",s:"Humans stopped wandering and built the first cities between the Tigris and Euphrates rivers. They invented writing, laws, and organized government.",c:"Agriculture led to permanent settlements, writing, and civilization.",e:"Imagine everyone at your school camps in tents. One day, someone builds a house. Then a shop. Then a school. That's how cities started."},
+{t:"The Rise and Fall of Empires",by:"Egypt, Rome, China",s:"Great civilizations rise, grow powerful, and eventually decline. Egypt lasted 3,000 years, Rome about 1,000. Each left behind ideas, art, and lessons.",c:"Empires follow cycles of rise, expansion, and eventual decline.",e:"Even the biggest sandcastle eventually washes away — but the cool designs inspire the next builder."},
+{t:"Democracy Is Born",by:"Athens, ~500 BCE",s:"Ancient Athens invented democracy — citizens voted on laws directly. Not everyone could vote (women and slaves couldn't), but it planted the seed for modern democracy.",c:"The concept of government by the people originated in ancient Athens.",e:"Imagine your class voting on every rule instead of the teacher deciding. That's what Athens tried first."},
+]},
+{name:"Medieval to Renaissance",ideas:[
+{t:"The Spread of World Religions",by:"Medieval Period",s:"Christianity, Islam, Buddhism, and Hinduism spread across continents, shaping laws, art, and daily life for billions. Religious ideas became the foundation of entire civilizations.",c:"Religions became organizing frameworks for societies across the globe.",e:"Religion was like an operating system for society — it shaped everything from holidays to laws to what people ate."},
+{t:"The Renaissance Reawakens Europe",by:"14th–17th Century",s:"After the 'Dark Ages,' Europe rediscovered ancient Greek and Roman ideas. Art, science, and thinking exploded. Leonardo da Vinci and Michelangelo transformed culture.",c:"A rebirth of learning and art transformed European civilization.",e:"Imagine a school that forgot about science for centuries, then suddenly rediscovered all its old textbooks — and went wild learning."},
+]},
+{name:"Revolutions & Modern World",ideas:[
+{t:"The Age of Revolutions",by:"18th–19th Century",s:"The American, French, and Industrial Revolutions transformed the world. People demanded freedom, equality, and better living conditions — overthrowing kings and old systems.",c:"Revolutions in politics and industry reshaped global power structures.",e:"Imagine the whole school standing up at once and saying 'We want fair rules!' That energy changed the world."},
+{t:"The World Wars Changed Everything",by:"1914–1945",s:"Two devastating world wars killed millions, redrew borders, and created the modern world order. They led to the United Nations, nuclear weapons, and the Cold War.",c:"Two global conflicts reshaped political boundaries, technology, and international relations.",e:"The world wars were like a massive earthquake — when the shaking stopped, everything looked completely different."},
+{t:"The End of Colonialism",by:"20th Century",s:"European empires had colonized most of Africa, Asia, and the Americas. In the 20th century, colonized peoples fought for and won their independence, reshaping the globe.",c:"Former colonies gained independence, creating new nations worldwide.",e:"India's independence from Britain in 1947 was like a grown-up child finally moving out of a controlling parent's house."},
+]},
+],
+topIdeas:["Birth of civilization (Mesopotamia)","Athenian democracy","Rise and fall of empires","The Renaissance","Age of Revolutions","World Wars I and II","End of colonialism","The Cold War","Industrial Revolution","Invention of writing"],
+storyIdeas:[
+{title:"The River Builders",desc:"Kids build a civilization from scratch near a river — inventing writing, rules, and government step by step. (Mesopotamia)"},
+{title:"The Vote",desc:"A group decides whether to let everyone vote or just a few — exploring how democracy was born and evolved. (Athens)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 14. RELIGIONS
+// ──────────────────────────────────────────
+{
+id:"religions",title:"Religions",emoji:"🕊️",color:"#f472b6",
+desc:"What do the world's great religions teach? What do they share? How have they shaped history?",
+tags:["Faith","Belief","Spirituality","Rituals"],
+sections:[
+{name:"Ancient & Eastern Religions",ideas:[
+{t:"Hinduism: One Reality, Many Faces",by:"Oldest Living Religion",s:"Hindus believe in one ultimate reality (Brahman) that appears in many forms — as Vishnu, Shiva, Lakshmi, and others. There are many paths to the divine.",c:"A single divine reality manifests in countless forms.",e:"Think of water — it appears as ice, liquid, steam, clouds, rivers, and oceans. Different forms, same substance."},
+{t:"Buddhism: End Suffering Through Understanding",by:"The Buddha",s:"The Buddha taught that suffering comes from craving and attachment. By following the Middle Way and Eightfold Path, anyone can achieve inner peace (Nirvana).",c:"Suffering is caused by desire; peace comes through understanding and letting go.",e:"Wanting a toy desperately and not getting it causes suffering. Learning to be content with what you have brings peace."},
+{t:"The Tao: Go With the Flow",by:"Taoism",s:"Taoism teaches that there's a natural flow to everything (the Tao). Fighting against it causes problems. The wisest approach is to live in harmony with nature's rhythm.",c:"Align yourself with the natural order rather than fighting it.",e:"Water flows around rocks instead of fighting them — and it eventually smooths them down. That's the Tao in action."},
+]},
+{name:"Abrahamic Religions",ideas:[
+{t:"Judaism: One God, One Covenant",by:"Judaism",s:"Judaism introduced the idea of one God who made a covenant (special agreement) with the Jewish people. Following God's laws (Torah) is the path to a just and good life.",c:"One God made a binding agreement with a people to follow moral law.",e:"It's like a promise between a parent and child: 'Follow these rules, and I'll always protect and guide you.'"},
+{t:"Christianity: God's Love Saves",by:"Christianity",s:"Christians believe Jesus is the Son of God who came to save humanity through love, forgiveness, and sacrifice. His teachings emphasize compassion, mercy, and eternal life.",c:"God's love and grace, expressed through Jesus, offers salvation to all people.",e:"Forgiving someone who hurt you — even when it's really hard — is at the heart of what Jesus taught."},
+{t:"Islam: Submission to One God",by:"Islam",s:"Muslims believe in one God (Allah) and follow the teachings of the Prophet Muhammad as recorded in the Quran. The Five Pillars provide a framework for daily spiritual life.",c:"Peace comes through submission to God's will and following the Five Pillars.",e:"Praying five times a day is like checking in with your purpose regularly — keeping your life centered."},
+]},
+{name:"Modern Religious Thought",ideas:[
+{t:"All Religions Seek the Same Truth",by:"Comparative Religion",s:"Many thinkers argue that different religions are different paths up the same mountain. Each tradition offers a unique perspective on universal spiritual truths.",c:"Diverse religious traditions may point toward shared underlying truths.",e:"Different maps of the same city — each shows different streets, but they all describe the same place."},
+{t:"Religion Answers Questions Science Cannot",by:"Philosophy of Religion",s:"Science tells us HOW the world works. Religion addresses WHY it exists and how we should live. They answer different questions and need not conflict.",c:"Science and religion address different dimensions of human experience.",e:"Science explains how a sunset works (light bending through atmosphere). Religion asks why it feels so beautiful and meaningful."},
+]},
+],
+topIdeas:["Monotheism (one God)","Buddhism's Four Noble Truths","Hindu concept of Brahman","The Five Pillars of Islam","Jesus's teachings on love","The Torah covenant","Taoism's natural harmony","Karma and rebirth","Comparative religion","Science and religion dialogue"],
+storyIdeas:[
+{title:"The Mountain Paths",desc:"Five friends each take a different path up a mountain — meeting at the top. Each path taught different lessons. (Comparative religion)"},
+{title:"The River of Peace",desc:"A child learns to let go of anger and wanting by watching a river flow — discovering the Buddha's Middle Way."},
+]
+},
+
+// ──────────────────────────────────────────
+// 15. MYTHOLOGY
+// ──────────────────────────────────────────
+{
+id:"mythology",title:"Mythology",emoji:"🐉",color:"#ef4444",
+desc:"Ancient stories that explain the world — gods, heroes, monsters, and the meaning behind them.",
+tags:["Gods","Heroes","Legends","Creation"],
+sections:[
+{name:"Creation Myths",ideas:[
+{t:"How the World Began",by:"Universal Theme",s:"Nearly every culture has a story about how the world was created — from the Norse Ginnungagap to the Hindu cosmic egg to the Aboriginal Dreamtime. These stories explain our origins.",c:"Creation myths answer the universal question of where everything came from.",e:"Some say the world hatched from an egg, others say it was spoken into existence. Every culture had its answer."},
+{t:"Order From Chaos",by:"Greek / Egyptian / Norse",s:"Many myths describe the universe starting as chaos — a formless mess — and then being organized by gods into the sky, earth, and sea.",c:"Creation is often depicted as bringing order to primordial chaos.",e:"Think of a messy room that gets organized — myths say the universe started as the ultimate messy room."},
+]},
+{name:"Gods & Divine Beings",ideas:[
+{t:"Gods With Human Personalities",by:"Greek Mythology",s:"Greek gods are powerful but also jealous, angry, loving, and petty — just like humans. Zeus, Athena, and Ares show that even divine beings have flaws.",c:"Greek gods personify human emotions and conflicts on a cosmic scale.",e:"Zeus getting jealous is like the most powerful kid in school also being the most dramatic."},
+{t:"Trickster Gods Shake Things Up",by:"Global Mythology",s:"Many cultures have trickster gods (Loki, Anansi, Coyote) who break rules and cause chaos — but also bring creativity and change. They keep the universe from getting boring.",c:"Tricksters represent the creative, chaotic forces that drive change.",e:"The class clown who disrupts everything but also has the most creative ideas — that's a trickster."},
+]},
+{name:"Heroes & Quests",ideas:[
+{t:"The Hero's Journey",by:"Joseph Campbell",s:"Almost every hero story follows the same pattern: ordinary person → called to adventure → faces trials → finds treasure → returns transformed. Star Wars, Harry Potter, and ancient myths all follow it.",c:"A universal story pattern underlies hero tales across all cultures.",e:"Luke Skywalker, Frodo, Moana — they all leave home, face challenges, find something powerful, and come back changed."},
+{t:"Monsters Represent Our Fears",by:"Universal Theme",s:"Dragons, Medusa, the Minotaur — mythological monsters represent real fears: chaos, death, the unknown. Defeating them symbolizes overcoming our deepest terrors.",c:"Mythological monsters externalize and personify human fears.",e:"A dragon guarding treasure is like the fear of failure guarding your dreams. The hero has to face it to get what they want."},
+]},
+],
+topIdeas:["The Hero's Journey (Campbell)","Creation myths across cultures","Greek gods and human nature","Trickster figures","Monsters as metaphors","Norse Ragnarok (end and renewal)","Underworld journeys","Flood myths worldwide","Sacred animals","Origin of the seasons (Persephone)"],
+storyIdeas:[
+{title:"My Hero's Journey Journal",desc:"A child maps their own life challenges onto the Hero's Journey — realizing they're on their own quest. (Campbell)"},
+{title:"The Trickster's Game",desc:"A clever trickster character teaches kids that breaking rules sometimes leads to the most creative solutions. (Trickster myths)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 16. LITERATURE
+// ──────────────────────────────────────────
+{
+id:"literature",title:"Literature",emoji:"📖",color:"#7c3aed",
+desc:"The greatest works of fiction, poetry, and drama — and why they still matter today.",
+tags:["Novels","Poetry","Drama","Storytelling"],
+sections:[
+{name:"Ancient & Classical Literature",ideas:[
+{t:"Epic Poetry Tells a People's Story",by:"Homer / Virgil / Vyasa",s:"The Iliad, Odyssey, Mahabharata, and Aeneid are epic poems that define entire civilizations. They contain wars, gods, heroes, and the values of their cultures.",c:"Epic poems encode a culture's values, history, and identity in narrative form.",e:"For ancient Greeks, the Iliad was what the Avengers franchise is today — except way more important."},
+{t:"Stories Within Stories",by:"1001 Nights / Canterbury Tales",s:"Some of the greatest works use a 'frame story' — a story that contains other stories, like Russian nesting dolls of narrative.",c:"Frame narratives create layers of meaning through stories within stories.",e:"Imagine telling a friend a story about someone who was telling a story — it's stories all the way down!"},
+]},
+{name:"The Novel",ideas:[
+{t:"The Novel Explores the Inner Self",by:"Development of the Novel",s:"Novels let us live inside another person's head. Unlike myths (which are about gods), novels explore ordinary people's thoughts, feelings, and struggles.",c:"The novel made interior human experience the central subject of literature.",e:"Reading a good novel is like downloading someone else's memories and feelings directly into your brain."},
+{t:"Satire Mocks Society to Improve It",by:"Swift / Voltaire / Orwell",s:"Writers like Swift (Gulliver's Travels) and Orwell (Animal Farm) use humor and exaggeration to point out society's flaws. Laughing at problems is the first step to fixing them.",c:"Satire uses humor and irony to criticize social and political issues.",e:"Animal Farm uses talking animals to show how revolutions can go wrong. It's funny — and terrifying."},
+]},
+{name:"Modern Literature",ideas:[
+{t:"Modernism Breaks the Rules",by:"Joyce / Woolf / Kafka",s:"20th century writers shattered old storytelling rules. Stream-of-consciousness, fragmented timelines, unreliable narrators — they tried to capture how messy real life and thought actually are.",c:"Modernist literature experiments with form to reflect the complexity of modern experience.",e:"Reading James Joyce is like hearing someone's actual thoughts — jumping from topic to topic without neat paragraphs."},
+{t:"Postcolonial Voices Tell Their Side",by:"Achebe / Rushdie / Morrison",s:"Writers from former colonies told their own stories instead of being described by outsiders. They challenged the idea that Western literature was the only 'great' literature.",c:"Postcolonial literature reclaims narratives from the perspective of the formerly colonized.",e:"Imagine only hearing your story told by someone else — then finally getting to tell it yourself, your way."},
+]},
+],
+topIdeas:["Epic poetry as cultural DNA","The rise of the novel","Stream of consciousness","Satire as social commentary","Postcolonial storytelling","Shakespeare's influence","Magical realism","Frame narratives","Tragedy and catharsis","Poetry and emotion"],
+storyIdeas:[
+{title:"The Story Inside the Story",desc:"A child opens a book and finds themselves inside a story, where characters are telling THEIR stories. (Frame narrative)"},
+{title:"My Side of the Story",desc:"A minor character from a famous tale finally gets to tell things from their perspective. (Postcolonial voice)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 17. ART
+// ──────────────────────────────────────────
+{
+id:"art",title:"Art",emoji:"🎨",color:"#ec4899",
+desc:"From cave paintings to modern installations — how art reflects and shapes human experience.",
+tags:["Painting","Sculpture","Movements","Expression"],
+sections:[
+{name:"Ancient to Renaissance Art",ideas:[
+{t:"The First Artists (Cave Paintings)",by:"~40,000 BCE",s:"Humans have been making art since the Ice Age. Cave paintings of animals and handprints show that creating images is a basic human need.",c:"The impulse to create art is fundamental to being human.",e:"Tens of thousands of years before smartphones, people were already 'posting pictures' — on cave walls."},
+{t:"Renaissance Mastered Reality",by:"Leonardo / Michelangelo / Raphael",s:"Renaissance artists learned perspective, anatomy, and light to create stunningly lifelike paintings. They believed art should mirror reality as perfectly as possible.",c:"Renaissance art achieved unprecedented realism through scientific observation.",e:"Leonardo da Vinci dissected bodies to understand muscles — so his paintings look more real than photographs."},
+]},
+{name:"Modern Movements",ideas:[
+{t:"Impressionism Captures the Moment",by:"Monet / Renoir / Degas",s:"Impressionists painted not what things LOOK like, but how they FEEL in a fleeting moment — the shimmer of sunlight on water, the buzz of a crowded street.",c:"Art should capture sensory impressions and fleeting moments rather than fixed details.",e:"An Impressionist painting of a garden looks blurry up close but magical from a distance — just like a real memory."},
+{t:"Abstract Art Frees the Mind",by:"Kandinsky / Mondrian / Pollock",s:"Abstract artists threw away the 'must look like something' rule. Pure colors, shapes, and emotions became the subject. A painting can make you FEEL without showing you anything recognizable.",c:"Art need not represent reality — pure form and color can communicate directly.",e:"Music makes you feel things without showing pictures. Abstract art works the same way — emotion through color and shape."},
+{t:"Art Can Be Anything",by:"Duchamp / Warhol / Modern Conceptualists",s:"Marcel Duchamp put a urinal in a gallery and called it art. Andy Warhol painted soup cans. Modern art says anything can be art if the artist frames it that way.",c:"Art is defined by intention and context, not by traditional skill or beauty.",e:"If a kid frames their messy splatter painting and hangs it on a gallery wall with a title — is it art? Modern art says yes!"},
+]},
+],
+topIdeas:["Cave art as human instinct","Renaissance perspective","Impressionism","Abstract expressionism","Duchamp's readymades","Photography's impact on painting","Cubism (multiple viewpoints)","Pop Art (Warhol)","Sculpture through the ages","Art as political statement"],
+storyIdeas:[
+{title:"The Cave Artist",desc:"A time-traveling child meets the first artist ever — a cave painter — and discovers why humans NEED to make art."},
+{title:"The Painting That Feels",desc:"An abstract painting in a gallery makes everyone who sees it feel different emotions — teaching that art doesn't need to 'look like' anything."},
+]
+},
+
+// ──────────────────────────────────────────
+// 18. CINEMA
+// ──────────────────────────────────────────
+{
+id:"movies",title:"Cinema",emoji:"🎬",color:"#f43f5e",
+desc:"How cinema tells stories, creates emotions, and reflects our world. The magic of movies.",
+tags:["Film","Directors","Genres","Storytelling"],
+sections:[
+{name:"The Birth of Cinema",ideas:[
+{t:"Moving Pictures Change Everything",by:"Lumière Brothers / Méliès",s:"The first movies were just short clips of everyday life. Then Georges Méliès discovered you could use film for fantasy and special effects — and storytelling was born.",c:"Cinema combined technology and imagination to create a new art form.",e:"The first audiences screamed when they saw a train on screen — they thought it was coming at them! That's the power of movies."},
+{t:"Editing Creates Meaning",by:"Eisenstein / Kuleshov",s:"By cutting between different images, filmmakers create meaning. A face followed by food = hunger. The same face followed by a coffin = sadness. Editing controls emotion.",c:"The arrangement of shots creates meaning beyond what individual images show.",e:"Show someone smiling, then show a puppy — you think they're happy about the puppy. Show the same smile, then show money — they seem greedy. Same smile, different meaning!"},
+]},
+{name:"Genres & Storytelling",ideas:[
+{t:"Genre Films Speak a Shared Language",by:"Film Genres",s:"Westerns, horror, comedy, sci-fi — each genre has its own rules and expectations. Audiences know what to expect, and filmmakers can play with or break those expectations.",c:"Film genres create a shared vocabulary between filmmakers and audiences.",e:"When creepy music plays in a horror movie, you KNOW something scary is coming. That's genre language."},
+{t:"The Camera Tells the Story",by:"Cinematography",s:"Where you place the camera, how you move it, and what you show all tell the story. Looking up at a character makes them powerful. Looking down makes them weak.",c:"Visual choices in filmmaking communicate as much as dialogue and action.",e:"In superhero movies, the hero is often filmed from below looking up — making them seem towering and powerful."},
+]},
+{name:"Modern Cinema",ideas:[
+{t:"Blockbusters Changed Hollywood",by:"Spielberg / Lucas",s:"Jaws and Star Wars invented the modern blockbuster — big-budget spectacles that open on thousands of screens. They made movies into global events.",c:"The blockbuster model transformed filmmaking into a global entertainment industry.",e:"Before Star Wars, movie releases were small and slow. After Star Wars, every studio wanted the next worldwide hit."},
+{t:"World Cinema Offers Different Perspectives",by:"Global Filmmakers",s:"Not all great movies come from Hollywood. Films from India, Japan, Korea, Iran, and Nigeria offer completely different stories, styles, and worldviews.",c:"Cinema from every culture enriches global storytelling with diverse perspectives.",e:"Korean movies like Parasite show stories Hollywood never would — and the whole world loves them."},
+]},
+],
+topIdeas:["Birth of cinema (Lumière/Méliès)","Editing creates meaning (Eisenstein)","Genre conventions","Cinematography as storytelling","The blockbuster era","World cinema diversity","Animation as art form","Documentary truth","Sound and music in film","Special effects evolution"],
+storyIdeas:[
+{title:"The Edit Magicians",desc:"Kids discover they can change the meaning of any story just by rearranging the scenes. (Editing theory)"},
+{title:"Camera Eyes",desc:"A child sees the world through different 'camera angles' — learning that perspective changes everything. (Cinematography)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 19. MUSIC
+// ──────────────────────────────────────────
+{
+id:"music",title:"Music",emoji:"🎵",color:"#8b5cf6",
+desc:"From ancient drums to digital beats — how music moves us, brings us together, and changes the world.",
+tags:["Rhythm","Melody","Genres","Expression"],
+sections:[
+{name:"Foundations of Music",ideas:[
+{t:"Rhythm Is the Heartbeat of Music",by:"Universal Principle",s:"Before melody, before harmony, there was rhythm. Humans have been drumming and clapping since the beginning. Rhythm is hardwired into our bodies through our heartbeat.",c:"Rhythm is the most fundamental element of music, rooted in our biology.",e:"Tap a beat on a desk — everyone around you will start nodding along. Rhythm is contagious because our hearts already beat in rhythm."},
+{t:"Music Is Math You Can Hear",by:"Pythagoras / Acoustics",s:"Musical notes that sound good together follow simple mathematical ratios. An octave is a 2:1 ratio. Harmony is literally about numbers getting along.",c:"Musical harmony is based on mathematical relationships between frequencies.",e:"A guitar string vibrating at double the speed creates a note exactly one octave higher. Beauty IS math."},
+]},
+{name:"Classical to Romantic",ideas:[
+{t:"Classical Music Creates Perfect Structure",by:"Mozart / Haydn / Beethoven",s:"Classical composers created music like architects build buildings — with perfect balance, symmetry, and structure. Every note has a logical reason for being there.",c:"Classical music emphasizes formal structure, balance, and clarity.",e:"A Mozart symphony is like a perfectly planned essay — introduction, development, conclusion — but in sound."},
+{t:"Romantic Music Unleashes Emotion",by:"Chopin / Tchaikovsky / Wagner",s:"Romantic composers threw open the doors to raw emotion. Their music could make you weep, tremble, or feel like you're flying. Feeling mattered more than rules.",c:"Romantic era music prioritized emotional expression over formal structure.",e:"Listening to Tchaikovsky's Swan Lake feels like experiencing heartbreak and hope at the same time — pure emotion in sound."},
+]},
+{name:"Modern & Popular Music",ideas:[
+{t:"Jazz: Freedom Through Improvisation",by:"Armstrong / Ellington / Coltrane",s:"Jazz musicians don't play from a fixed script — they improvise, creating music in the moment. It's musical freedom: expressing yourself spontaneously.",c:"Jazz celebrates spontaneous creation and individual expression.",e:"Jazz is like a conversation where everyone talks at once but somehow makes it beautiful — controlled chaos."},
+{t:"Rock Changed Culture",by:"Elvis / Beatles / Hendrix",s:"Rock and roll wasn't just music — it was rebellion. It gave young people their own voice and culture, separate from their parents. It changed fashion, attitude, and politics.",c:"Rock music became a vehicle for youth identity and cultural revolution.",e:"When the Beatles played on TV, teenagers screamed. When their parents complained, the generation gap was born."},
+{t:"Hip-Hop Gave a Voice to the Voiceless",by:"Grandmaster Flash / Tupac / Jay-Z",s:"Hip-hop emerged from the streets of New York as a way for marginalized communities to express their reality. Through rap, DJing, and breakdancing, it became a global culture.",c:"Hip-hop transformed street poetry and DJ culture into the world's dominant music form.",e:"Rap is modern poetry — spoken fast, felt deep, and heard everywhere from streets to stadiums."},
+]},
+],
+topIdeas:["Rhythm as biological foundation","Music-math connection","Classical structure (Mozart/Beethoven)","Romantic emotional expression","Jazz improvisation","Rock as cultural revolution","Hip-hop as voice of the marginalized","Blues as foundation of popular music","Electronic music/technology","Global music traditions"],
+storyIdeas:[
+{title:"The Rhythm Finder",desc:"A child discovers that rhythm is everywhere — in heartbeats, footsteps, rain — and that music is all around us."},
+{title:"The Improvisation Club",desc:"Kids who always follow rules learn to improvise — discovering jazz-style freedom and creativity."},
+]
+},
+
+// ──────────────────────────────────────────
+// 20. SHAKESPEARE
+// ──────────────────────────────────────────
+{
+id:"shakespeare",title:"Shakespeare",emoji:"🎭",color:"#a16207",
+desc:"The works and world of the greatest English-language playwright — still relevant 400 years later.",
+tags:["Theatre","Drama","Language","Human Nature"],
+sections:[
+{name:"The Comedies",ideas:[
+{t:"Love Makes Fools of Us All",by:"A Midsummer Night's Dream",s:"In a magical forest, fairies and love potions create hilarious chaos. People fall in love with the wrong people, get enchanted, and act totally silly.",c:"Comedy reveals that love is irrational, chaotic, and wonderfully human.",e:"Having a crush on someone makes smart people do dumb things — Shakespeare knew this 400 years ago."},
+{t:"Things Are Not What They Seem",by:"Twelfth Night",s:"A girl disguises herself as a boy, causing a chain of confusion, mistaken identity, and misplaced affection. Appearances can be completely deceiving.",c:"Identity is fluid and appearances are unreliable.",e:"Ever dressed up in a costume so good that your friends didn't recognize you? Imagine that — but with love involved!"},
+]},
+{name:"The Tragedies",ideas:[
+{t:"Ambition Destroys",by:"Macbeth",s:"Macbeth murders his king to take the throne, driven by ambition and his wife's pressure. But guilt and paranoia destroy them both. Wanting power too badly leads to ruin.",c:"Unchecked ambition leads to moral corruption and self-destruction.",e:"Cheating to win a competition might work once — but the guilt and fear of being caught eat you alive."},
+{t:"Indecision Can Be Fatal",by:"Hamlet",s:"Prince Hamlet knows his uncle murdered his father, but he can't decide what to do about it. His hesitation leads to tragedy for everyone around him.",c:"Overthinking and inaction can be as destructive as wrong action.",e:"If you spend so long choosing between two options that you miss both — that's a Hamlet moment."},
+{t:"Love vs. Hate",by:"Romeo and Juliet",s:"Two teenagers from warring families fall deeply in love. Their families' hatred makes their love impossible, leading to heartbreak and death.",c:"Prejudice and hatred can destroy even the most powerful love.",e:"Imagine two best friends whose families forbid them from being friends — that conflict can ruin everything beautiful."},
+]},
+{name:"Shakespeare's Legacy",ideas:[
+{t:"Shakespeare Invented Modern English",by:"Language Legacy",s:"Shakespeare created over 1,700 words we still use today — 'lonely,' 'generous,' 'eyeball,' 'bedroom.' He literally shaped how we speak.",c:"Shakespeare's linguistic inventions permanently expanded the English language.",e:"Next time you say 'break the ice' or 'wild goose chase,' thank Shakespeare — he made those up!"},
+{t:"Universal Human Truths",by:"Timeless Themes",s:"Jealousy, ambition, love, revenge, identity — Shakespeare wrote about emotions that every human feels. That's why his plays still work 400+ years later.",c:"Shakespeare's themes transcend time because they address universal human experiences.",e:"A teenager today can totally relate to Romeo's crushes, Hamlet's confusion, or Macbeth's peer pressure."},
+]},
+],
+topIdeas:["Hamlet's indecision","Macbeth's ambition","Romeo and Juliet's star-crossed love","Comedy of mistaken identity","Shakespeare's invented words","The power of jealousy (Othello)","Justice and mercy (Merchant of Venice)","Power and leadership (Henry V)","The Tempest's forgiveness","Universal human themes"],
+storyIdeas:[
+{title:"The Word Inventor",desc:"A magical character who invents new words — and each word changes how people see the world. (Shakespeare's language)"},
+{title:"The Two Families",desc:"Two rival groups at school must learn to work together — discovering that hate hurts everyone. (Romeo and Juliet)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 21. MATHEMATICS
+// ──────────────────────────────────────────
+{
+id:"math",title:"Mathematics",emoji:"🔢",color:"#14b8a6",
+desc:"Numbers, patterns, and logic — the universal language that describes everything in the universe.",
+tags:["Numbers","Geometry","Algebra","Patterns"],
+sections:[
+{name:"Numbers & Counting",ideas:[
+{t:"Zero Changed Everything",by:"Indian Mathematicians",s:"Before zero was invented, math was clunky and limited. Zero gave us placeholder notation (10, 100, 1000) and made modern math, science, and computing possible.",c:"The invention of zero revolutionized mathematics and made modern computation possible.",e:"Try doing math with Roman numerals: XLVII + XXIX = ? Now try 47 + 29 = 76. Zero makes everything easier!"},
+{t:"Infinity Is Bigger Than You Think",by:"Georg Cantor",s:"Cantor proved that some infinities are BIGGER than others. The infinity of real numbers is 'more infinite' than the infinity of counting numbers. Mind-blowing!",c:"Not all infinities are equal — some are provably larger than others.",e:"There are infinite whole numbers (1, 2, 3...) but even MORE infinite decimal numbers between just 0 and 1!"},
+{t:"Prime Numbers Are Math's Atoms",by:"Number Theory",s:"Primes (2, 3, 5, 7, 11...) can only be divided by 1 and themselves. Every number is built from primes — they're the atoms of arithmetic.",c:"Prime numbers are the indivisible building blocks of all numbers.",e:"12 = 2×2×3. Every number has a unique 'recipe' of primes. Primes are the ingredients; other numbers are the dish."},
+]},
+{name:"Geometry & Space",ideas:[
+{t:"Pythagoras' Theorem",by:"Pythagoras",s:"In a right triangle, the square of the longest side equals the sum of squares of the other two sides: a² + b² = c². One of the most useful formulas ever.",c:"A fundamental relationship between the sides of right-angled triangles.",e:"Need to know the distance across a pond? Measure two sides of a right triangle — math gives you the third!"},
+{t:"Geometry Beyond Flat Surfaces",by:"Non-Euclidean Geometry",s:"For 2,000 years, everyone assumed geometry worked on flat surfaces. Then mathematicians discovered geometry on curved surfaces — where parallel lines CAN meet!",c:"Geometry works differently on curved surfaces, breaking ancient assumptions.",e:"On a globe, lines of longitude are 'parallel' at the equator but meet at the poles. Flat-world rules don't apply!"},
+]},
+{name:"Algebra & Calculus",ideas:[
+{t:"Algebra Lets You Solve for the Unknown",by:"Al-Khwarizmi",s:"Algebra uses letters (like x) to represent unknown numbers. It lets you set up equations and solve puzzles: 'I'm thinking of a number, and when I double it I get 10. What is it?'",c:"Algebra provides tools to find unknown values through logical manipulation.",e:"'x + 5 = 12' — you figure out x = 7. Algebra is detective work for numbers!"},
+{t:"Calculus Measures Change",by:"Newton & Leibniz",s:"Calculus is the math of change. It can calculate how fast something is speeding up, the area under a curve, and how things grow over time. It's the language of physics.",c:"Calculus provides tools to analyze rates of change and accumulation.",e:"How fast is a rocket accelerating at exactly 3.7 seconds? Only calculus can answer that precisely."},
+{t:"Probability Measures Uncertainty",by:"Pascal / Fermat",s:"Probability tells you how likely something is to happen. Rolling a 6 on a die? 1 in 6 chance. It's the math of luck, risk, and prediction.",c:"Probability quantifies the likelihood of uncertain events.",e:"Weather forecasts, insurance, and poker all use probability — math helps you make better decisions under uncertainty."},
+]},
+],
+topIdeas:["Zero (Indian mathematics)","Pythagoras' theorem","Prime numbers","Calculus (Newton/Leibniz)","Probability theory","Infinity (Cantor)","Algebra (Al-Khwarizmi)","Fibonacci sequence","Non-Euclidean geometry","Pi and circles"],
+storyIdeas:[
+{title:"The Hero Zero",desc:"A little number called Zero is rejected by other numbers until they realize nothing works without it. (Invention of zero)"},
+{title:"The Pattern Detective",desc:"A kid discovers hidden patterns everywhere — in flowers (Fibonacci), in buildings (geometry), in music (ratios). (Math in nature)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 22. LOGIC
+// ──────────────────────────────────────────
+{
+id:"logic",title:"Logic",emoji:"🧩",color:"#0ea5e9",
+desc:"How to think clearly, spot faulty reasoning, and build airtight arguments.",
+tags:["Reasoning","Arguments","Fallacies","Truth"],
+sections:[
+{name:"Foundations of Logic",ideas:[
+{t:"Valid Arguments Follow Rules",by:"Aristotle's Syllogisms",s:"A syllogism is a logical argument: 'All dogs are animals. Rex is a dog. Therefore Rex is an animal.' If the structure is correct AND the premises are true, the conclusion MUST be true.",c:"Valid logical arguments guarantee true conclusions from true premises.",e:"All fish live in water. Nemo is a fish. Therefore Nemo lives in water. The structure forces the conclusion."},
+{t:"Deduction vs. Induction",by:"Core Logic",s:"Deduction goes from general to specific (All cats meow → My cat meows). Induction goes from specific to general (Every cat I've seen meows → All cats meow). Deduction is certain; induction is probable.",c:"Deductive reasoning guarantees conclusions; inductive reasoning suggests them.",e:"Deduction: 'All school days start at 8am. Today is a school day. Therefore school starts at 8am.' Induction: 'School started at 8am every day this week, so it probably will tomorrow.'"},
+]},
+{name:"Logical Fallacies",ideas:[
+{t:"Ad Hominem: Attacking the Person",by:"Common Fallacy",s:"Instead of arguing against someone's idea, you attack THEM personally. 'You're too young to understand' doesn't prove their argument wrong.",c:"Attacking the speaker rather than the argument is a logical error.",e:"'Your idea is bad because you got a C in math.' That's attacking YOU, not your idea."},
+{t:"Straw Man: Fighting a Fake Version",by:"Common Fallacy",s:"You misrepresent someone's argument to make it easier to attack. Instead of fighting their real point, you fight a weaker version of it.",c:"Distorting an opponent's argument to make it easier to defeat is dishonest reasoning.",e:"Friend says 'We should eat less sugar.' You say 'So you want us to NEVER eat anything sweet EVER?' That's not what they said!"},
+{t:"Correlation ≠ Causation",by:"Statistical Fallacy",s:"Just because two things happen together doesn't mean one CAUSED the other. Ice cream sales and drowning both rise in summer — but ice cream doesn't cause drowning!",c:"Two events occurring together doesn't prove one causes the other.",e:"More people carry umbrellas on days when the ground is wet — but umbrellas don't make the ground wet!"},
+]},
+{name:"Modern Logic",ideas:[
+{t:"Boolean Logic Powers Computers",by:"George Boole",s:"Boole reduced logic to just two values: TRUE (1) and FALSE (0). Every computer in the world runs on this binary logic — billions of tiny yes/no decisions per second.",c:"All digital computing is built on binary true/false logic.",e:"Every app, game, and website you use works because of millions of tiny YES or NO switches flipping inside a computer chip."},
+{t:"Paradoxes Break Logic's Rules",by:"Various Thinkers",s:"Some statements break logic: 'This statement is false.' If it's true, it's false. If it's false, it's true. Paradoxes show the limits of logical systems.",c:"Some logical statements are inherently self-contradictory and unsolvable.",e:"'I always lie.' If that's true, then I'm lying about always lying, which means I sometimes tell the truth... brain explosion!"},
+]},
+],
+topIdeas:["Syllogistic reasoning (Aristotle)","Deduction vs induction","Logical fallacies (ad hominem, straw man)","Correlation ≠ causation","Boolean logic (Boole)","Paradoxes and their limits","If-then reasoning","Occam's Razor in logic","Formal vs informal logic","Critical thinking skills"],
+storyIdeas:[
+{title:"The Fallacy Fighters",desc:"A team of kids learns to spot logical tricks and bad arguments — becoming 'fallacy detectors.' (Logical fallacies)"},
+{title:"The Yes/No Machine",desc:"A magical machine that only understands YES and NO builds amazing things — teaching binary/Boolean logic."},
+]
+},
+
+// ──────────────────────────────────────────
+// 23. KNOWLEDGE
+// ──────────────────────────────────────────
+{
+id:"knowledge",title:"Knowledge & Epistemology",emoji:"💡",color:"#f97316",
+desc:"What is knowledge? How do we know what we know? The study of epistemology and understanding.",
+tags:["Epistemology","Truth","Belief","Understanding"],
+sections:[
+{name:"What Is Knowledge?",ideas:[
+{t:"Knowledge Is Justified True Belief",by:"Classical Definition",s:"To really 'know' something, three things must be true: you believe it, it's actually true, and you have good REASONS for believing it. Just guessing right doesn't count.",c:"True knowledge requires belief, truth, and justification working together.",e:"If you guess the answer on a test and get it right, you don't really 'know' it — you just got lucky."},
+{t:"How Do We Know Anything?",by:"Rationalism vs. Empiricism",s:"Rationalists say we know things through pure thinking. Empiricists say we know things through experience and our senses. The debate has raged for centuries.",c:"Knowledge may come from reason, experience, or both.",e:"You know 2+2=4 through thinking (rationalism). You know fire is hot through touching it (empiricism — ouch!)."},
+]},
+{name:"Sources of Knowledge",ideas:[
+{t:"Our Senses Can Deceive Us",by:"Skepticism",s:"Your eyes, ears, and other senses don't always tell the truth. Optical illusions, mirages, and hallucinations prove that what you perceive isn't always real.",c:"Sensory experience is not always a reliable source of knowledge.",e:"A straw in water looks bent but isn't. Your senses lied to you! If they can lie once, when can you trust them?"},
+{t:"Science Builds Knowledge Systematically",by:"Scientific Epistemology",s:"Science creates knowledge through careful observation, controlled experiments, peer review, and constant revision. It self-corrects over time.",c:"Scientific knowledge grows through systematic testing and community verification.",e:"One scientist's result isn't trusted until other scientists repeat the experiment and get the same answer."},
+{t:"Not All Knowledge Comes from Books",by:"Tacit Knowledge",s:"Some things you 'know' but can't explain in words — like how to ride a bicycle. This 'tacit knowledge' is real knowledge, even though you can't write it in a textbook.",c:"Some knowledge is embodied and practical rather than verbal and theoretical.",e:"Try explaining how to balance on a bicycle in words. You can't fully — but your body knows exactly how."},
+]},
+],
+topIdeas:["Justified true belief","Rationalism vs empiricism","Skepticism and doubt","Scientific method of knowing","Tacit knowledge","Limits of perception","Expert knowledge vs common sense","Epistemological humility","Knowledge vs opinion","Social construction of knowledge"],
+storyIdeas:[
+{title:"The Know-It-All's Challenge",desc:"A kid who says 'I know everything' is challenged to prove it — discovering the difference between believing and truly knowing."},
+{title:"The Body That Knew",desc:"A child's body knows how to do things (swim, balance, catch) that their brain can't explain in words. (Tacit knowledge)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 24. MEDICINE
+// ──────────────────────────────────────────
+{
+id:"medicine",title:"Medicine",emoji:"⚕️",color:"#10b981",
+desc:"How humans learned to fight disease, heal injuries, and extend life. The story of medical breakthroughs.",
+tags:["Health","Disease","Treatment","Discovery"],
+sections:[
+{name:"Ancient Medicine",ideas:[
+{t:"Do No Harm (The Hippocratic Oath)",by:"Hippocrates",s:"Hippocrates moved medicine from magic to science. He said doctors should observe symptoms carefully and — above all — do no harm to the patient.",c:"Medicine should be based on observation, not superstition, and must prioritize patient safety.",e:"A doctor should be like a detective: observe clues (symptoms), form a theory (diagnosis), and test it (treatment) — without making things worse."},
+{t:"Herbal Medicine Came First",by:"Ancient Traditions",s:"For thousands of years, humans used plants to heal. Many modern medicines are based on chemicals found in ancient herbal remedies — aspirin comes from willow bark!",c:"Traditional plant-based remedies laid the foundation for modern pharmacology.",e:"Willow bark tea for headaches = ancient aspirin. The cure was growing in forests all along."},
+]},
+{name:"The Germ Theory Revolution",ideas:[
+{t:"Germs Cause Disease",by:"Louis Pasteur / Robert Koch",s:"For centuries, people thought 'bad air' caused disease. Pasteur and Koch proved that tiny living things (bacteria and viruses) are the real culprits. This discovery saved millions of lives.",c:"Infectious diseases are caused by microscopic organisms, not miasma or curses.",e:"Washing your hands kills germs you can't see — but those invisible germs can make you very sick if you ignore them."},
+{t:"Vaccines Prevent Disease",by:"Edward Jenner / Modern Vaccinology",s:"Jenner noticed milkmaids who caught cowpox never got smallpox. He used this discovery to create the first vaccine. Vaccines have since eliminated or reduced dozens of deadly diseases.",c:"Vaccines train the immune system to fight diseases before they strike.",e:"A vaccine is like a practice test for your immune system — it learns what the enemy looks like so it's ready for the real thing."},
+{t:"Antibiotics Kill Bacteria",by:"Alexander Fleming",s:"Fleming accidentally discovered that a mold called Penicillium killed bacteria. Antibiotics became medicine's greatest weapon — but overuse is creating drug-resistant superbugs.",c:"Antibiotics revolutionized medicine but must be used responsibly to remain effective.",e:"Antibiotics are like a magic sword against bacteria — but if you overuse it, bacteria learn to build armor."},
+]},
+{name:"Modern Medicine",ideas:[
+{t:"Surgery Became Safe",by:"Anesthesia & Antiseptics",s:"Before anesthesia, patients were awake during surgery. Before antiseptics, infections killed many survivors. These two discoveries made surgery survivable and humane.",c:"Anesthesia and antiseptics transformed surgery from torture to life-saving precision.",e:"Imagine a dentist visit with NO numbing. That was ALL of medicine before the 1840s!"},
+{t:"The Human Genome Was Mapped",by:"Human Genome Project",s:"Scientists decoded the entire human DNA blueprint — 3 billion letters of genetic code. This opened the door to personalized medicine tailored to YOUR specific genes.",c:"Mapping human DNA enables medical treatments customized to individual genetic profiles.",e:"Instead of 'one medicine for everyone,' doctors can now find the medicine that works best for YOUR body."},
+]},
+],
+topIdeas:["Hippocratic oath","Germ theory (Pasteur/Koch)","Vaccines (Jenner)","Antibiotics (Fleming)","Anesthesia","Antiseptics","Human genome mapping","Evidence-based medicine","Organ transplantation","Mental health recognition"],
+storyIdeas:[
+{title:"The Invisible Army",desc:"A child discovers that tiny invisible germs are everywhere — and learns to fight them with soap, vaccines, and knowledge. (Germ theory)"},
+{title:"The Accidental Discovery",desc:"A messy scientist leaves an experiment unfinished and accidentally discovers something that saves millions. (Fleming/Penicillin)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 25. HUMAN BODY
+// ──────────────────────────────────────────
+{
+id:"humanbody",title:"The Human Body",emoji:"🫀",color:"#ef4444",
+desc:"An amazing machine — how your body's systems work together to keep you alive and thriving.",
+tags:["Anatomy","Organs","Systems","Health"],
+sections:[
+{name:"Body Systems",ideas:[
+{t:"The Heart Pumps Blood Non-Stop",by:"Circulatory System",s:"Your heart beats about 100,000 times a day, pumping blood through 100,000 km of blood vessels. Blood carries oxygen and nutrients to every cell in your body.",c:"The circulatory system delivers essential supplies to every cell and removes waste.",e:"Your blood vessels, laid end to end, would wrap around Earth 2.5 times. And your heart pumps through all of them every minute!"},
+{t:"The Brain Is the Body's Command Center",by:"Nervous System",s:"Your brain contains 86 billion neurons firing electrical signals. It controls everything — from thinking and feeling to breathing and digesting — faster than any computer.",c:"The nervous system processes information and coordinates all body functions.",e:"Your brain processes pain signals in milliseconds — that's why you pull your hand away from a hot stove BEFORE you consciously feel the burn."},
+{t:"Bones Provide Structure and Protection",by:"Skeletal System",s:"You have 206 bones that support your body, protect your organs, and store minerals. Bones are alive — they grow, heal, and constantly rebuild themselves.",c:"The skeleton provides structural support, protection, and mineral storage.",e:"Your bones are stronger than steel for their weight — but much lighter. They're nature's perfect building material."},
+]},
+{name:"How the Body Defends Itself",ideas:[
+{t:"The Immune System Is Your Army",by:"Immunity",s:"Your body has an army of white blood cells that fight invaders like bacteria and viruses. It remembers old enemies so it can fight them faster next time.",c:"The immune system identifies, attacks, and remembers disease-causing invaders.",e:"After getting chicken pox once, your immune system remembers the virus forever — so you don't get it again."},
+{t:"Skin Is Your First Shield",by:"Integumentary System",s:"Skin is your body's largest organ and first line of defense. It keeps germs out, water in, and helps regulate your temperature through sweating and shivering.",c:"Skin serves as a protective barrier, temperature regulator, and sensory organ.",e:"Your skin replaces itself completely every 2-3 weeks. The 'you' people see today is entirely new skin from a month ago!"},
+]},
+],
+topIdeas:["Circulatory system (heart and blood)","Nervous system (brain and nerves)","Immune system defense","Skeletal structure","Digestive process","Respiratory system","Muscle and movement","Skin as protection","Hormones and the endocrine system","DNA in every cell"],
+storyIdeas:[
+{title:"The Incredible Journey",desc:"Shrink down and travel through the human body — riding blood cells through veins, dodging immune cells, visiting the brain."},
+{title:"The Body City",desc:"The body is a city: the brain is mayor, bones are buildings, blood is the highway system, and white blood cells are police."},
+]
+},
+
+// ──────────────────────────────────────────
+// 26. SELF CARE
+// ──────────────────────────────────────────
+{
+id:"selfcare",title:"Self Care & Wellness",emoji:"🌱",color:"#84cc16",
+desc:"Taking care of your mind, body, and emotions — practical wisdom for a healthier, happier life.",
+tags:["Wellness","Mindfulness","Habits","Balance"],
+sections:[
+{name:"Mind & Emotions",ideas:[
+{t:"Your Thoughts Shape Your Reality",by:"Cognitive Behavioral Approach",s:"The way you THINK about something affects how you FEEL about it. If you think 'I'll fail,' you feel scared. If you think 'I'll try my best,' you feel brave. You can change your feelings by changing your thoughts.",c:"Thoughts influence emotions and behavior — changing thoughts can change outcomes.",e:"Two kids face a test. One thinks 'I'm going to fail' and freezes. The other thinks 'I'll do my best' and performs well. Same test, different thoughts, different results."},
+{t:"It's Okay to Not Be Okay",by:"Emotional Awareness",s:"Everyone feels sad, anxious, or overwhelmed sometimes. These feelings are normal and valid. The key is to notice them, accept them, and ask for help when needed.",c:"Acknowledging difficult emotions is the first step to managing them.",e:"Feeling anxious before a big game is normal. Pretending you're fine doesn't help — talking about it does."},
+]},
+{name:"Body & Habits",ideas:[
+{t:"Sleep Is a Superpower",by:"Sleep Science",s:"Your brain reorganizes, heals, and processes emotions during sleep. Skipping sleep makes you worse at everything — memory, mood, health, and even growth.",c:"Quality sleep is essential for cognitive function, emotional health, and physical recovery.",e:"Pulling an all-nighter before a test actually makes you perform WORSE — your brain needs sleep to lock in what you learned."},
+{t:"Movement Is Medicine",by:"Exercise Science",s:"Regular physical activity isn't just about fitness — it improves mood, reduces anxiety, boosts brain power, and helps you sleep better. Your body was built to move.",c:"Physical activity benefits mental health as much as physical health.",e:"A 20-minute walk can improve your mood as much as some medications. Your body and brain are deeply connected."},
+{t:"You Are What You Eat (Really)",by:"Nutrition",s:"The food you eat literally becomes your body's building material. Nutritious food builds a strong body and sharp mind. Junk food does the opposite.",c:"Nutrition directly affects physical health, mental clarity, and emotional well-being.",e:"Your brain uses 20% of all the energy from your food. Feed it well, and it performs well."},
+]},
+{name:"Relationships & Boundaries",ideas:[
+{t:"Boundaries Protect You",by:"Healthy Relationships",s:"Saying 'no' to things that drain or hurt you is not selfish — it's self-care. Good boundaries mean respecting your own needs and teaching others to respect them too.",c:"Setting healthy boundaries is essential for maintaining well-being and healthy relationships.",e:"If a friend always borrows your stuff and never returns it, saying 'no, not this time' is healthy — not mean."},
+{t:"Connection Is a Basic Human Need",by:"Social Well-being",s:"Humans are social creatures. Having meaningful relationships — with family, friends, or community — is as important for health as eating well and exercising.",c:"Social connection is a fundamental requirement for human well-being.",e:"Studies show that loneliness is as harmful to health as smoking. Your friendships literally keep you alive."},
+]},
+],
+topIdeas:["Thoughts shape feelings (CBT)","Emotional awareness and acceptance","Sleep science","Exercise for mental health","Nutrition and brain function","Setting boundaries","Social connection as health","Mindfulness and present-moment awareness","Building healthy habits","Asking for help is strength"],
+storyIdeas:[
+{title:"The Thought Changer",desc:"A child learns they can swap negative thoughts for helpful ones — like changing channels on a TV. (CBT for kids)"},
+{title:"The Battery Kid",desc:"A character whose 'battery' drains when they skip sleep, eat junk, or ignore their feelings — learning to recharge properly."},
+]
+},
+
+// ──────────────────────────────────────────
+// 27. CRIME
+// ──────────────────────────────────────────
+{
+id:"crime",title:"Crime & Criminology",emoji:"🔍",color:"#64748b",
+desc:"Why do people commit crimes? How does society respond? The study of crime, justice, and punishment.",
+tags:["Justice","Forensics","Law","Society"],
+sections:[
+{name:"Understanding Crime",ideas:[
+{t:"Why Do People Commit Crimes?",by:"Criminology",s:"There's no single reason for crime. Poverty, environment, upbringing, mental illness, opportunity, and even brain chemistry all play a role. Understanding WHY helps prevention.",c:"Crime has multiple causes — social, psychological, economic, and biological.",e:"A kid might steal food because they're hungry (poverty), because their friends dare them (peer pressure), or because no one's watching (opportunity). Different causes, same crime."},
+{t:"Crime Is Defined by Society",by:"Social Construction of Crime",s:"What counts as a 'crime' changes across time and place. Things that were once crimes (like protesting) are now rights. Crime is partly a social invention.",c:"The definition of crime varies across cultures and historical periods.",e:"In some countries, chewing gum in public is illegal. In others, it's perfectly normal. Crime depends on who makes the rules."},
+]},
+{name:"Detection & Forensics",ideas:[
+{t:"Evidence Tells the Story",by:"Forensic Science",s:"Modern crime detection uses DNA, fingerprints, digital trails, and chemical analysis. Physical evidence doesn't lie — it tells the truth about what happened.",c:"Forensic science uses physical evidence to reconstruct events objectively.",e:"A single hair at a crime scene contains your DNA — a unique code that identifies you and only you."},
+{t:"Criminal Profiling",by:"Behavioral Analysis",s:"By studying patterns in how crimes are committed, investigators can build a 'profile' of the likely criminal — their age, personality, habits, and even where they live.",c:"Behavioral patterns can help identify unknown criminals.",e:"If a burglar always enters through back windows and takes only electronics, that pattern helps detectives narrow their search."},
+]},
+{name:"Justice & Punishment",ideas:[
+{t:"Does Punishment Prevent Crime?",by:"Deterrence Theory",s:"Some say harsh punishment scares people away from crime. Others say it doesn't work — many criminals don't think about consequences before acting.",c:"The effectiveness of punishment as a crime deterrent is debated.",e:"Speed cameras reduce speeding because drivers see them. But most crimes aren't committed while checking for cameras."},
+{t:"Rehabilitation vs. Retribution",by:"Justice Philosophy",s:"Should prisons punish people or help them change? Rehabilitation tries to fix the reasons someone committed a crime. Retribution focuses on making them 'pay' for what they did.",c:"Justice systems struggle between punishing offenders and helping them reform.",e:"If a student bullies others, does suspension alone fix the problem? Or does counseling to understand WHY they bully work better?"},
+]},
+],
+topIdeas:["Causes of crime (multiple theories)","Forensic science and DNA","Criminal profiling","Deterrence theory","Rehabilitation vs retribution","Social definition of crime","Cybercrime in the digital age","Organized crime","White-collar crime","Restorative justice"],
+storyIdeas:[
+{title:"The Evidence Trail",desc:"Kids solve mysteries using only physical clues — learning forensic thinking and evidence-based reasoning."},
+{title:"The Rules Change",desc:"A story exploring how what's considered 'wrong' changes across different places and times. (Social construction of crime)"},
+]
+},
+
+// ──────────────────────────────────────────
+// 28. LAW
+// ──────────────────────────────────────────
+{
+id:"law",title:"Law & Justice",emoji:"⚖️",color:"#78716c",
+desc:"How laws are made, enforced, and changed — the rules that hold societies together.",
+tags:["Justice","Rights","Courts","Rules"],
+sections:[
+{name:"Foundations of Law",ideas:[
+{t:"Law Is the Social Contract in Action",by:"Legal Philosophy",s:"Laws are the written version of the social contract. We agree to follow rules in exchange for safety, order, and rights. Without laws, there's chaos.",c:"Law formalizes society's agreements about how people should behave.",e:"Traffic laws: you agree to stop at red lights. In return, everyone else stops too — keeping everyone safe."},
+{t:"The Rule of Law",by:"Core Principle",s:"The 'rule of law' means no one is above the law — not presidents, not billionaires, not anyone. Laws apply equally to everyone.",c:"Legal authority applies equally to all people, including those in power.",e:"If a teacher breaks a school rule, they should face the same consequences as a student. That's rule of law."},
+{t:"Natural Law vs. Made Law",by:"Legal Philosophy",s:"Some believe certain rights are 'natural' (built into being human). Others say all rights are human-made and can be changed. This debate shapes how we think about justice.",c:"The question of whether laws derive from nature or human invention is fundamental to legal thought.",e:"Is it 'naturally' wrong to steal, or is it only wrong because humans made a rule about it? Philosophers disagree."},
+]},
+{name:"Types of Law",ideas:[
+{t:"Criminal Law Protects Society",by:"Criminal Justice",s:"Criminal law deals with actions that harm society — theft, assault, fraud. The government prosecutes criminals on behalf of everyone. Punishments include fines, community service, or prison.",c:"Criminal law defines and punishes conduct harmful to society.",e:"If someone steals from a shop, it's not just the shop owner's problem — the government steps in because theft harms everyone's sense of safety."},
+{t:"Civil Law Resolves Disputes",by:"Civil Justice",s:"Civil law handles disagreements between people or organizations — contracts, property, family matters. Instead of punishment, it seeks to make things fair.",c:"Civil law resolves private disputes and seeks fair remedies rather than punishment.",e:"If a neighbor's tree falls on your fence, civil law helps decide who pays for repairs — no one goes to jail."},
+{t:"Constitutional Law Limits Government",by:"Constitutional Systems",s:"A constitution sets the basic rules for government itself — what it can and can't do. It protects citizens' fundamental rights against government overreach.",c:"Constitutional law defines governmental powers and protects fundamental citizen rights.",e:"The constitution is like the rulebook for the game of government — even the government has to play by the rules."},
+]},
+{name:"Rights & Justice",ideas:[
+{t:"Human Rights Belong to Everyone",by:"Universal Declaration of Human Rights",s:"In 1948, the world agreed on basic rights every human deserves — life, freedom, education, fair treatment. These rights belong to you simply because you're human.",c:"Fundamental rights are universal, inalienable, and belong to every person regardless of circumstance.",e:"No matter where you were born, what language you speak, or what you believe — you have the right to be treated with dignity."},
+{t:"Justice Must Be Both Blind and Seeing",by:"Equity vs. Equality",s:"Justice is 'blind' (treats everyone equally) but also needs to 'see' (understand that some people need more help than others to achieve fairness).",c:"True justice requires both equal treatment and recognition of unequal circumstances.",e:"Giving every student the same test time is equal. Giving a student with a broken hand extra time is equitable. Both are fair."},
+]},
+],
+topIdeas:["Rule of law","Social contract and law","Criminal vs civil law","Constitutional limits on government","Human rights","Equality vs equity in justice","Natural law vs positive law","Separation of powers","Due process","International law"],
+storyIdeas:[
+{title:"The Rule Book",desc:"A new student at school must create fair rules for everyone — learning how laws work by making them from scratch."},
+{title:"The Blind Scale",desc:"A talking scale of justice must decide tricky cases — learning when to be equal and when to be equitable. (Equality vs equity)"},
+]
+},
+];
+
+// ============================================================
+// APP LOGIC
+// ============================================================
+let activeBook = null;
+
+function renderSidebar(){
+const sb = document.getElementById('sidebar');
+const mn = document.getElementById('mobileNav');
+const grid = document.getElementById('welcomeGrid');
+let sbHTML = '<div class="sidebar-title">📚 All Subjects</div>';
+let mnHTML = '';
+let gridHTML = '';
+BOOKS.forEach(b => {
+sbHTML += `<button class="book-btn" data-id="${b.id}" onclick="showBook('${b.id}')"><span class="emoji">${b.emoji}</span>${b.title}</button>`;
+mnHTML += `<div class="book-chip" data-id="${b.id}" onclick="showBook('${b.id}')">${b.emoji} ${b.title}</div>`;
+gridHTML += `<div class="grid-item" onclick="showBook('${b.id}')"><span class="emoji">${b.emoji}</span>${b.title}</div>`;
+});
+sb.innerHTML = sbHTML;
+mn.innerHTML = mnHTML;
+grid.innerHTML = gridHTML;
+}
+
+function showBook(id){
+const b = BOOKS.find(x => x.id === id);
+if(!b) return;
+activeBook = id;
+// Update active states
+document.querySelectorAll('.book-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.id===id));
+document.querySelectorAll('.book-chip').forEach(chip => chip.classList.toggle('active', chip.dataset.id===id));
+
+const main = document.getElementById('main');
+let html = `<div class="book-header">
+<h2>${b.emoji} ${b.title}</h2>
+<div class="book-desc">${b.desc}</div>
+<div>${b.tags.map(t=>`<span class="tag" style="background:${b.color}22;color:${b.color};border:1px solid ${b.color}44">${t}</span>`).join('')}</div>
+</div>`;
+
+b.sections.forEach((sec, si) => {
+html += `<div class="section">
+<div class="section-header" onclick="toggleSection(this)" id="sec-${id}-${si}">
+<span class="section-chevron">▶</span>
+<h3>${sec.name}</h3>
+<span class="count">${sec.ideas.length} ideas</span>
+</div>
+<div class="topics" id="topics-${id}-${si}">`;
+sec.ideas.forEach((idea, ii) => {
+html += `<div class="topic" onclick="toggleTopic(this)">
+<div class="topic-title">${idea.t} ${idea.by ? `<span class="thinker">— ${idea.by}</span>`:''}</div>
+<div class="topic-summary">${idea.s}</div>
+<div class="topic-concept">💡 ${idea.c}</div>
+<div class="topic-example">🌍 ${idea.e}</div>
+<div class="topic-expand">▸ Click for real-world example</div>
+</div>`;
+});
+html += `</div></div>`;
+});
+
+// Top ideas
+html += `<div class="top-ideas"><h4>⭐ Top 10 Most Important Ideas</h4>`;
+b.topIdeas.forEach((ti, i) => {
+html += `<div class="top-idea-item"><span class="num">${i+1}.</span>${ti}</div>`;
+});
+html += `</div>`;
+
+// Story ideas
+if(b.storyIdeas && b.storyIdeas.length){
+html += `<div class="story-ideas"><h4>📝 Children's Story Adaptation Ideas</h4>`;
+b.storyIdeas.forEach(si => {
+html += `<div class="story-item"><strong>${si.title}</strong> — ${si.desc}</div>`;
+});
+html += `</div>`;
+}
+
+main.innerHTML = html;
+main.scrollTop = 0;
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleSection(el){
+el.classList.toggle('open');
+const topics = el.nextElementSibling;
+topics.classList.toggle('open');
+}
+
+function toggleTopic(el){
+el.classList.toggle('expanded');
+const expandLabel = el.querySelector('.topic-expand');
+if(el.classList.contains('expanded')){
+expandLabel.textContent = '▾ Hide example';
+} else {
+expandLabel.textContent = '▸ Click for real-world example';
+}
+}
+
+// Search
+document.getElementById('search').addEventListener('input', function(e){
+const q = e.target.value.toLowerCase().trim();
+if(!q){
+if(activeBook) showBook(activeBook);
+else {
+document.getElementById('main').innerHTML = document.getElementById('welcome')?.outerHTML || '';
+renderSidebar();
+}
+return;
+}
+const results = [];
+BOOKS.forEach(b => {
+b.sections.forEach(sec => {
+sec.ideas.forEach(idea => {
+const text = `${idea.t} ${idea.by||''} ${idea.s} ${idea.c} ${idea.e}`.toLowerCase();
+if(text.includes(q)){
+results.push({book:b, section:sec.name, idea});
+}
+});
+});
+});
+
+const main = document.getElementById('main');
+if(!results.length){
+main.innerHTML = `<div class="no-results"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#78716c" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><h3>No results found for "${e.target.value}"</h3><p style="margin-top:8px">Try a different search term — a thinker's name, concept, or keyword.</p></div>`;
+return;
+}
+
+let html = `<div class="book-header"><h2>🔍 Search Results</h2><div class="book-desc">Found ${results.length} matching idea${results.length>1?'s':''} for "<strong>${e.target.value}</strong>"</div></div>`;
+results.forEach(r => {
+html += `<div class="topic" onclick="toggleTopic(this)" style="background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius);margin-bottom:8px;padding:16px 20px">
+<div style="font-size:.7rem;color:${r.book.color};text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:600">${r.book.emoji} ${r.book.title} → ${r.section}</div>
+<div class="topic-title">${r.idea.t} ${r.idea.by?`<span class="thinker">— ${r.idea.by}</span>`:''}</div>
+<div class="topic-summary">${r.idea.s}</div>
+<div class="topic-concept">💡 ${r.idea.c}</div>
+<div class="topic-example">🌍 ${r.idea.e}</div>
+<div class="topic-expand">▸ Click for real-world example</div>
+</div>`;
+});
+main.innerHTML = html;
+});
+
+// Init
+renderSidebar();
+
+// Count total ideas
+let total = 0;
+BOOKS.forEach(b => b.sections.forEach(s => total += s.ideas.length));
+document.getElementById('stats').textContent = `${BOOKS.length} subjects · ${total} ideas`;
+</script>
+<div style="background:var(--surface);border-top:1px solid var(--surface2);padding:24px 32px;margin-top:40px;font-size:.75rem;color:var(--text3);line-height:1.7;text-align:center">
+<p><strong style="color:var(--text2)">Big Ideas for Young Minds</strong> — An Open-Source Educational Reference</p>
+<p style="max-width:700px;margin:8px auto">This is an independent, non-commercial educational project. All explanations are original summaries of well-known, public-domain ideas from philosophy, science, history, and other fields. This project is not affiliated with, endorsed by, or derived from any specific publisher or book series. The ideas belong to the thinkers and traditions that created them.</p>
+<p style="margin-top:8px">Licensed under <strong style="color:var(--text2)">MIT License</strong> · Free to use, modify, and share · Contributions welcome</p>
+</div>
+</body>
+</html>
